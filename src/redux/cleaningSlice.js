@@ -133,6 +133,6 @@ const cleaningSlice = createSlice({
 export const cleaningReducer = cleaningSlice.reducer;
 
 export const selectLessonsLoading = (state) => state.cleaning.isLoading;
-export const selectLessonsJillArr = (state) => state.cleaning.cleaningArr;
+export const selectSchedulesArr = (state) => state.cleaning.cleaningArr;
 export const selectLessonsById = (state) => state.cleaning.lessonById;
 export const selectLessonsJillError = (state) => state.cleaning.error;

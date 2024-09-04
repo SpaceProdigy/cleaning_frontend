@@ -6,7 +6,6 @@ import { Password } from "../../components/Password/Password";
 import { AlertComponent } from "../../components/AlertComponent/AlertComponent";
 import SelectMonth from "../../components/SelectMonth/SelectMonth";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLanguage } from "../../redux/localOperation";
 import {
   addScheduleThunk,
   getScheduleThunk,
@@ -21,6 +20,8 @@ import ModalDelete from "./ModalDelete/ModalDelete";
 import PropTypes from "prop-types";
 
 import ModalAddLesson from "./ModalEddLesson/ModalAddLesson";
+import { useLocation, useNavigate } from "react-router-dom";
+import { selectAuthUser } from "../../redux/authSlice";
 
 const Schedule = ({
   permissions,
@@ -30,19 +31,21 @@ const Schedule = ({
   taskList,
   mainTitle,
 }) => {
-  const language = useSelector(selectLanguage);
   const isLoading = useSelector(selectLessonsLoading);
+  const { displayName = "No name", uid = "No ID" } =
+    useSelector(selectAuthUser) || {};
 
   const screenMinWidth1100 = useMediaQuery("(min-width:1100px)");
   const screenMinWidth600 = useMediaQuery("(min-width:600px)");
-
+  const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
+  const locationMonth = location.pathname.split("/")[2];
 
   const [isDay, setIsDay] = useState(dayjs());
   const [valueRoom, setValueRoom] = useState(corridorRange.min);
   const [valueSelect, setValueSelect] = useState(1);
   const [errorRoom, setErrorRoom] = useState("");
-  const [selectMonthCalendar, setSelectMonthCalendar] = useState(dayjs());
   const [errorDate, setErrorDate] = useState(false);
   const [openModalPassword, setOpenModalPassword] = useState(false);
   const [valueDate, setValueDate] = useState("");
@@ -62,16 +65,19 @@ const Schedule = ({
   // console.log("EDIT", isEdit);
   // console.log("CHOSE", isChooseALesson);
   // console.log("SELECT", valueSelect);
-  // console.log("selectMonthCalendar", selectMonthCalendar);
 
   useEffect(() => {
+    const newUrl = `/${nameCollection}/${locationMonth}`;
+
+    navigate(newUrl, { replace: true });
+
     dispatch(
       getScheduleThunk({
         nameCollection,
-        selectMonthCalendar,
+        locationMonth,
       })
     );
-  }, [dispatch, nameCollection, selectMonthCalendar]);
+  }, [dispatch, locationMonth, nameCollection, navigate]);
 
   const handleAddALesson = () => {
     return setOpen(true);
@@ -92,6 +98,7 @@ const Schedule = ({
           updateValue: {
             roomNumber: valueRoom,
             task: taskList[valueSelect - 1],
+            editor: { displayName, uid },
           },
         })
       );
@@ -110,6 +117,7 @@ const Schedule = ({
           task: taskList[valueSelect - 1],
           date: valueDate,
           roomNumber: valueRoom,
+          adder: { displayName, uid },
         },
       })
     );
@@ -132,7 +140,7 @@ const Schedule = ({
         <ImageTitle
           image={image}
           // tipingText={lesson && lesson?.date && lesson.date}
-          title={mainTitle[language]}
+          title={mainTitle}
         />
         <Box
           display="flex"
@@ -143,8 +151,8 @@ const Schedule = ({
           justifyContent="center"
         >
           <Calendar
-            selectMonthCalendar={selectMonthCalendar}
-            setSelectMonthCalendar={setSelectMonthCalendar}
+            nameCollection={nameCollection}
+            locationMonth={locationMonth}
             handleAddALesson={handleAddALesson}
             setIsDay={setIsDay}
             setIsEdit={setIsEdit}
@@ -184,13 +192,13 @@ const Schedule = ({
                 }}
               >
                 <SelectMonth
-                  selectMonthCalendar={selectMonthCalendar}
-                  setSelectMonthCalendar={setSelectMonthCalendar}
+                  nameCollection={nameCollection}
+                  locationMonth={locationMonth}
                 />
               </Paper>
 
               <BasicTable
-                selectMonthCalendar={selectMonthCalendar}
+                nameCollection={nameCollection}
                 permissions={permissions}
                 isDeleteModal={isDeleteModal}
                 setIsDeleteModal={setIsDeleteModal}
@@ -256,5 +264,5 @@ Schedule.propTypes = {
   corridorRange: PropTypes.object.isRequired,
   image: PropTypes.string.isRequired,
   taskList: PropTypes.array.isRequired,
-  mainTitle: PropTypes.object.isRequired,
+  mainTitle: PropTypes.string.isRequired,
 };

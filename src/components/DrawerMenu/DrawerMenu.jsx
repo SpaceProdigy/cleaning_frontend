@@ -9,7 +9,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { selectAuthentificated } from "../../redux/authSlice";
 import { logOutThunk } from "../../redux/authOparations";
-import ScheduleList from "./ScheduleList/ScheduleList";
+
 import MainList from "./MainList/MainList";
 import AuthList from "./AuthList/AuthList";
 
@@ -43,7 +43,7 @@ export default function DrawerMenu() {
       }}
     >
       <MainList pathname={pathname} language={language} theme={theme} />
-      <ScheduleList pathname={pathname} language={language} theme={theme} />
+      {/* <ScheduleList pathname={pathname} language={language} theme={theme} /> */}
 
       <Divider />
       <AuthList

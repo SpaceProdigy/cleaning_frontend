@@ -14,9 +14,8 @@ import { currentUserThunk } from "./redux/authOparations.js";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute.jsx";
 import { MainConteiner, MainDiv } from "./App.styled.jsx";
 import { pathPages } from "./locales/pathPages.js";
-import BlueCorridor from "./routs/Cleaning/BlueCorridor";
 import { selectAuthentificated } from "./redux/authSlice.js";
-import Kitchen4 from "./routs/Cleaning/Kitchen4.jsx";
+import CleaningSchedule from "./routs/Cleaning/CleaningSchedule.jsx";
 
 // ROUTS
 const Home = lazy(() => import("./pages/Home/Home.jsx"));
@@ -49,12 +48,8 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route
-                    path={`${pathPages.blueCorridor}`}
-                    element={<BlueCorridor />}
-                  />
-                  <Route
-                    path={`${pathPages.kitchen4}`}
-                    element={<Kitchen4 />}
+                    path={`/:schedule/:date`}
+                    element={<CleaningSchedule />}
                   />
 
                   <Route path={`${pathPages.signIn}`} element={<SignIn />} />

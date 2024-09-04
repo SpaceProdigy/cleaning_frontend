@@ -9,21 +9,34 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import PropTypes from "prop-types";
-import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  CircularProgress,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
-  selectLessonsJillArr,
   selectLessonsLoading,
+  selectSchedulesArr,
 } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
+import { useState } from "react";
+import { updateScheduleByIdThunk } from "../../redux/cleaningOperations";
+import { selectAuthUser } from "../../redux/authSlice";
 
 BasicTable.propTypes = {
   isDeleteModal: PropTypes.bool,
   setIsDeleteModal: PropTypes.func,
   permissions: PropTypes.bool.isRequired,
-  selectMonthCalendar: PropTypes.object.isRequired,
+  nameCollection: PropTypes.string.isRequired,
   setIsEdit: PropTypes.func,
   handleAddALesson: PropTypes.func,
   setIsChooseALesson: PropTypes.func,
@@ -42,148 +55,240 @@ export default function BasicTable({
   handleAddALesson,
   setIsChooseALesson,
   setValueSelect,
+  nameCollection,
 }) {
   const language = useSelector(selectLanguage);
-  const LessonsJillArr = useSelector(selectLessonsJillArr);
+  const schedulesArr = useSelector(selectSchedulesArr);
   const isLoading = useSelector(selectLessonsLoading);
+  const { displayName = "No name" } = useSelector(selectAuthUser) || {};
 
-  const sortArr = [...LessonsJillArr]?.sort((a, b) => {
+  const user = useSelector(selectAuthUser);
+  console.log(user);
+  const dicpatch = useDispatch();
+
+  const [room, setRoom] = useState("");
+
+  const handleChecked = (e, id) => {
+    dicpatch(
+      updateScheduleByIdThunk({
+        nameCollection,
+        id,
+        updateValue: {
+          checked: { isDone: e.target.checked, checker: { displayName, id } },
+        },
+      })
+    );
+  };
+
+  const handleChange = (event) => {
+    console.log(event.target.value);
+    setRoom(event.target.value);
+  };
+
+  const currenColor = (theme, date) => {
+    if (dayjs().format("YYYY-MM-DD") === date) {
+      return theme.palette.success.main;
+    }
+    if (dayjs().isAfter(date)) {
+      return theme.palette.grey[500];
+    }
+
+    return theme.palette.text.main;
+  };
+
+  const sortArr = [...schedulesArr]?.sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
 
     return dateA - dateB;
   });
 
+  const uniqRoomNumbers = new Set();
+
+  sortArr?.map(({ roomNumber }) => uniqRoomNumbers.add(roomNumber));
+
+  const currentArr = () => {
+    if (room) {
+      return sortArr?.filter(({ roomNumber }) => roomNumber === room);
+    } else {
+      return sortArr;
+    }
+  };
+
   return (
-    <TableContainer
-      elevation={2}
-      sx={{ boxShadow: "0px 0px 5px -2px rgba(0,0,0,0.52)" }}
-      component={Paper}
-    >
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
-              {language === "en" ? "Room number" : "Номер кімнати"}
-            </TableCell>
-            <TableCell align="center">
-              {language === "en" ? "Date" : "Дата"}
-            </TableCell>
-            <TableCell align="center">
-              {language === "en" ? "Task" : "Завдання"}
-            </TableCell>
-
-            {permissions && (
-              <>
-                <TableCell align="center">
-                  {language === "en" ? "Edit" : "Редагувати"}
-                </TableCell>
-                <TableCell align="center">
-                  {language === "en" ? "Delete" : "Видалити"}
-                </TableCell>
-              </>
-            )}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {sortArr &&
-            sortArr.length > 0 &&
-            sortArr.map(({ id, date, roomNumber, task }, index, item) => (
-              <TableRow
-                key={index}
-                id={id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell
-                  align="center"
-                  sx={(theme) => ({
-                    whiteSpace: "nowrap",
-                    color:
-                      dayjs().format("YYYY-MM-DD") === date
-                        ? theme.palette.success.main
-                        : theme.palette.text.main,
-                  })}
-                >
+    <>
+      {uniqRoomNumbers?.size > 0 && (
+        <Paper elevation={2} sx={{ width: "100%", maxWidth: "400px" }}>
+          <FormControl fullWidth sx={{ maxWidth: "400px" }}>
+            <InputLabel>{language === "en" ? "Room" : "Кімната"}</InputLabel>
+            <Select
+              value={room}
+              label={language === "en" ? "Room" : "Кімната"}
+              onChange={handleChange}
+            >
+              <MenuItem value={""}>
+                {language === "en" ? "Reset" : "Скинути"}
+              </MenuItem>
+              {[...uniqRoomNumbers]?.map((roomNumber, index) => (
+                <MenuItem key={index} value={roomNumber}>
                   {roomNumber}
-                </TableCell>
-
-                <TableCell
-                  align="center"
-                  sx={(theme) => ({
-                    whiteSpace: "nowrap",
-                    color:
-                      dayjs().format("YYYY-MM-DD") === date
-                        ? theme.palette.success.main
-                        : theme.palette.text.main,
-                  })}
-                >
-                  {date}
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={(theme) => ({
-                    whiteSpace: "nowrap",
-                    color:
-                      dayjs().format("YYYY-MM-DD") === date
-                        ? theme.palette.success.main
-                        : theme.palette.text.main,
-                  })}
-                >
-                  {task[language]}
-                </TableCell>
-
-                {permissions && (
-                  <>
-                    <TableCell align="center">
-                      <IconButton
-                        color="secondary"
-                        onClick={() => {
-                          setValueSelect(task.id);
-                          setIsChooseALesson(item[index]);
-                          setIsEdit({ edit: true, data: item });
-                          handleAddALesson();
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        color="error"
-                        onClick={() => {
-                          setIsDeleteModal(true);
-                          setIsChooseALesson(item[index]);
-                          setIsEdit({ edit: true, data: item });
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </>
-                )}
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-      {isLoading && (
-        <Box
-          width="100%"
-          height="100px"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <CircularProgress />
-        </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Paper>
       )}
 
-      {!isLoading && sortArr.length === 0 && (
-        <Typography variant="h6" textAlign="center" marginBottom={2} mt={2}>
-          {language === "en"
-            ? "Cleaning this month are not yet scheduled"
-            : "Прибирання в цьому місяці ще не заплановано"}
-        </Typography>
-      )}
-    </TableContainer>
+      <TableContainer
+        elevation={2}
+        sx={{ boxShadow: "0px 0px 5px -2px rgba(0,0,0,0.52)" }}
+        component={Paper}
+      >
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
+                {language === "en" ? "Room number" : "Номер кімнати"}
+              </TableCell>
+              <TableCell align="center">
+                {language === "en" ? "Date" : "Дата"}
+              </TableCell>
+              <TableCell align="center">
+                {language === "en" ? "Task" : "Завдання"}
+              </TableCell>
+
+              {permissions && (
+                <>
+                  <TableCell align="center">
+                    {language === "en" ? "Done" : "Готово"}
+                  </TableCell>
+                  <TableCell align="center">
+                    {language === "en" ? "Edit" : "Редагувати"}
+                  </TableCell>
+                  <TableCell align="center">
+                    {language === "en" ? "Delete" : "Видалити"}
+                  </TableCell>
+                </>
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortArr &&
+              sortArr.length > 0 &&
+              currentArr().map(
+                ({ _id, date, roomNumber, task, checked }, index, item) => (
+                  <TableRow
+                    key={index}
+                    id={_id}
+                    sx={{
+                      "&:last-child td, &:last-child th": { border: 0 },
+                      background: checked.isDone && "#c8ffd115",
+                    }}
+                  >
+                    <TableCell
+                      align="center"
+                      sx={(theme) => ({
+                        whiteSpace: "nowrap",
+                        color: currenColor(theme, date),
+                      })}
+                    >
+                      {roomNumber}
+                    </TableCell>
+
+                    <TableCell
+                      align="center"
+                      sx={(theme) => ({
+                        whiteSpace: "nowrap",
+                        color: currenColor(theme, date),
+                      })}
+                    >
+                      {date}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={(theme) => ({
+                        whiteSpace: "nowrap",
+                        color: currenColor(theme, date),
+                      })}
+                    >
+                      {task[language]}
+                    </TableCell>
+
+                    {permissions && (
+                      <>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          <Checkbox
+                            disabled={isLoading}
+                            checked={checked.isDone}
+                            onChange={(e) => handleChecked(e, _id)}
+                            color="success"
+                          />
+                          {checked?.isDone && (
+                            <Typography variant="caption">
+                              {checked?.checker?.displayName}
+                            </Typography>
+                          )}
+                        </TableCell>
+
+                        <TableCell align="center">
+                          <IconButton
+                            color="secondary"
+                            onClick={() => {
+                              setValueSelect(task.id);
+                              setIsChooseALesson(item[index]);
+                              setIsEdit({ edit: true, data: item });
+                              handleAddALesson();
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton
+                            color="error"
+                            onClick={() => {
+                              setIsDeleteModal(true);
+                              setIsChooseALesson(item[index]);
+                              setIsEdit({ edit: true, data: item });
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
+                      </>
+                    )}
+                  </TableRow>
+                )
+              )}
+          </TableBody>
+        </Table>
+        {isLoading && (
+          <Box
+            width="100%"
+            height="100px"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <CircularProgress />
+          </Box>
+        )}
+
+        {!isLoading && sortArr.length === 0 && (
+          <Typography variant="h6" textAlign="center" marginBottom={2} mt={2}>
+            {language === "en"
+              ? "Cleaning this month are not yet scheduled"
+              : "Прибирання в цьому місяці ще не заплановано"}
+          </Typography>
+        )}
+      </TableContainer>
+    </>
   );
 }

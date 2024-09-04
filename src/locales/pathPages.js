@@ -1,6 +1,11 @@
 export const pathPages = {
-  blueCorridor: "/blueCorridor",
-  kitchen4: "/kitchen4",
+  blueCorridor: "blueCorridor",
+  redCorridor: "redCorridor",
+  yellowCorridor: "yellowCorridor",
+  kitchen3: "kitchen3",
+  kitchen4: "kitchen4",
+  kitchen5: "kitchen5",
+  kitchen6: "kitchen6",
   signIn: "/signin",
   signUp: "/signup",
   account: "/account",

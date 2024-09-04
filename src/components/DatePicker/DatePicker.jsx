@@ -40,8 +40,6 @@ export default function BasicDatePicker({
     setValueDate(isDate);
   }, [isDate, setValueDate]);
 
-  console.log(isDate);
-
   useEffect(() => {
     if (
       isDate === "" ||

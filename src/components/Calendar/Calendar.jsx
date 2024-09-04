@@ -12,10 +12,11 @@ import { DayItem } from "./DayItem/DayItem";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
-  selectLessonsJillArr,
   selectLessonsLoading,
+  selectSchedulesArr,
 } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 export default function Calendar({
   handleAddALesson,
@@ -31,22 +32,34 @@ export default function Calendar({
   permissions,
   isDeleteModal,
   setIsDeleteModal,
-  setSelectMonthCalendar,
-  selectMonthCalendar,
+  locationMonth,
+  nameCollection,
 }) {
   const [isModal, setIsModal] = useState(false);
   const language = useSelector(selectLanguage);
   const isLoading = useSelector(selectLessonsLoading);
-  const LessonsJillArr = useSelector(selectLessonsJillArr);
+  const schedulesArr = useSelector(selectSchedulesArr);
+  const navigate = useNavigate();
 
   const handleClose = () => {
     setIsDay(null);
     setIsModal(false);
   };
 
+  const isCurrentMonth = () => {
+    if (
+      dayjs(locationMonth).isBefore(dayjs().format("YYYY-MM")) ||
+      dayjs(`${locationMonth}`).isAfter(dayjs().format("YYYY-MM"))
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   const shouldDisplayBadge = ({ day }) => {
     const dayOfMonth = dayjs(day.$d).format("YYYY-MM-DD");
-    return LessonsJillArr?.filter(({ date }) => dayOfMonth === date);
+    return schedulesArr?.filter(({ date }) => dayOfMonth === date);
   };
 
   return (
@@ -57,6 +70,10 @@ export default function Calendar({
           p: 2,
           position: "relative",
           boxShadow: "0px 0px 4px -2px rgba(0,0,0,0.52)",
+          "& .MuiPickersDay-root.Mui-selected": !isCurrentMonth() && {
+            backgroundColor: "transparent !important",
+            color: "inherit !important",
+          },
         }}
       >
         <LocalizationProvider
@@ -69,9 +86,13 @@ export default function Calendar({
           adapterLocale={language === "ua" ? "uk" : "en"}
         >
           <DateCalendar
-            value={selectMonthCalendar}
-            onMonthChange={(e) => setSelectMonthCalendar(e)}
+            value={dayjs(`${locationMonth}-${dayjs().day() + 1}`)}
+            onMonthChange={(e) => {
+              const newUrl = `/${nameCollection}/${e.format("YYYY-MM")}`;
+              navigate(newUrl, { replace: true });
+            }}
             onChange={(e) => setIsDay(e)}
+            views={["day"]}
             key={language}
             sx={{
               width: "100%",
@@ -143,7 +164,6 @@ Calendar.propTypes = {
   permissions: PropTypes.bool,
   isDeleteModal: PropTypes.bool,
   setIsDeleteModal: PropTypes.func,
-
-  selectMonthCalendar: PropTypes.object,
-  setSelectMonthCalendar: PropTypes.func.isRequired,
+  nameCollection: PropTypes.string.isRequired,
+  locationMonth: PropTypes.string.isRequired,
 };

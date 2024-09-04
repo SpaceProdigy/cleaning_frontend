@@ -14,7 +14,7 @@ import {
 import { collectionDb } from "../locales/collectionDb";
 
 import axios from "axios";
-import dayjs from "dayjs";
+
 const ENV = import.meta.env;
 
 const BASE_URL = ENV.VITE_BASE_URL;
@@ -38,14 +38,11 @@ const someThingWrongAlarm = () => {
 
 export const getScheduleThunk = createAsyncThunk(
   "cleaning/get",
-  async ({ nameCollection, selectMonthCalendar }, { rejectWithValue }) => {
+  async ({ nameCollection, locationMonth }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${BASE_URL}${nameCollection}`, {
-        params: {
-          date: dayjs(selectMonthCalendar).format("YYYY-MM"),
-          nameCollection,
-        },
-      });
+      const { data } = await axios.get(
+        `${BASE_URL}${nameCollection}/${locationMonth}`
+      );
 
       return data;
     } catch (error) {
@@ -61,7 +58,9 @@ export const addScheduleThunk = createAsyncThunk(
       const respond = await axios.post(`${BASE_URL}${nameCollection}`, data);
       notify(
         "success",
-        language === "en" ? "Lesson added successfully" : "Урок додано успішно"
+        language === "en"
+          ? "Schedule added successfully"
+          : "Розклад  додано успішно"
       );
 
       return respond.data;
@@ -74,7 +73,7 @@ export const addScheduleThunk = createAsyncThunk(
 );
 
 export const getScheduleByIdThunk = createAsyncThunk(
-  "lessonsWithJill/getById",
+  "cleaning/getById",
   async ({ nameCollection, currentId }, { rejectWithValue }) => {
     try {
       const docRef = doc(db, nameCollection, currentId);
@@ -86,8 +85,8 @@ export const getScheduleByIdThunk = createAsyncThunk(
           notify(
             "info",
             language === "en"
-              ? "Information about the lesson was not found or you have not added materials yet"
-              : "Інформація про урок не знайдена або ви ще не додали матеріали"
+              ? "Information about the schedule was not found or you have not added schedule yet"
+              : "Інформація про розклад не знайдена або ви ще не додали розклад"
           );
         }
         const data = docSnap.data();
@@ -113,8 +112,8 @@ export const deleteScheduleByIdThunk = createAsyncThunk(
       notify(
         "success",
         language === "en"
-          ? "The lesson was successfully deleted"
-          : "Урок успішно видалено"
+          ? "The schedule was successfully deleted"
+          : "Розклад  успішно видалено"
       );
 
       return id;
@@ -136,8 +135,8 @@ export const updateScheduleByIdThunk = createAsyncThunk(
       notify(
         "success",
         language === "en"
-          ? "The lesson has been updated successfully"
-          : "Урок успішно оновлено"
+          ? "The schedule has been updated successfully"
+          : "Розклад успішно оновлено"
       );
 
       return data;

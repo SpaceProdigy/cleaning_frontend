@@ -20,6 +20,7 @@ import { AlertComponent } from "../../../components/AlertComponent/AlertComponen
 import { selectLanguage } from "../../../redux/localOperation";
 import { NavLink, useNavigate } from "react-router-dom";
 import { selectAuthentificated } from "../../../redux/authSlice";
+import AuthGoogleButton from "../AuthGoogleButton/AuthGoogleButton";
 
 const SignIn = () => {
   const [actualStateInputs, setActualStateInputs] = useState(
@@ -31,6 +32,7 @@ const SignIn = () => {
   const dispatch = useDispatch();
   const authentificated = useSelector(selectAuthentificated);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (authentificated) {
       navigate("/");
@@ -109,6 +111,9 @@ const SignIn = () => {
         <Button type="submit" variant="contained" fullWidth size="large">
           {language === "en" ? "Submit" : "Надіслати"}
         </Button>
+        <AuthGoogleButton
+          text={language === "en" ? "Sign in with google" : "Ввійти з Google"}
+        />
       </FormWrapper>
       <Box m={1} textAlign="center">
         {language === "en" ? (

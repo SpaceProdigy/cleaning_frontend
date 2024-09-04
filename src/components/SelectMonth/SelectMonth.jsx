@@ -8,17 +8,17 @@ import { monthArr } from "./month.js";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation.js";
+import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+
 SelectMonth.propTypes = {
-  setSelectMonthCalendar: PropTypes.func,
-  selectMonthCalendar: PropTypes.object,
+  nameCollection: PropTypes.string.isRequired,
+  locationMonth: PropTypes.string.isRequired,
 };
 
-export default function SelectMonth({
-  setSelectMonthCalendar,
-  selectMonthCalendar,
-}) {
+export default function SelectMonth({ nameCollection, locationMonth }) {
   const language = useSelector(selectLanguage);
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ maxWidth: 400, width: "100%" }}>
@@ -27,12 +27,14 @@ export default function SelectMonth({
           {language === "en" ? "Select a month" : "Виберіть місяць"}
         </InputLabel>
         <Select
-          value={dayjs(selectMonthCalendar).format("YYYY-MM")}
+          value={locationMonth}
           label={language === "en" ? "Select a month" : "Виберіть місяць"}
           onChange={(e) => {
-            console.log(e.target.value);
+            const newUrl = `/${nameCollection}/${dayjs(e.target.value).format(
+              "YYYY-MM"
+            )}`;
 
-            setSelectMonthCalendar(dayjs(e.target.value));
+            navigate(newUrl, { replace: true });
           }}
         >
           {monthArr(language).map((month, index) => (

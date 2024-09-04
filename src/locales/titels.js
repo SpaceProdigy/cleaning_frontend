@@ -1,9 +1,25 @@
-export const titleBlueCorridor = {
-  en: "Blue corridor cleaning schedule",
-  ua: "Графік прибирання синього коридору",
+export const titleCorridor = (language, corridor) => {
+  if (language === "en") {
+    return `${String(corridor).slice(0, 1).toLocaleUpperCase()}${String(
+      corridor
+    ).slice(1)} corridor cleaning schedule`;
+  }
+  if (language === "ua") {
+    return `Графік прибирання ${
+      corridor === "yellow"
+        ? "жовтого"
+        : corridor === "red"
+        ? "червоного"
+        : corridor === "blue" && "синього"
+    } коридору`;
+  }
 };
 
-export const titleKitchen4 = {
-  en: "Schedule for cleaning the 4-th kitchen",
-  ua: "Графік прибирання 4-ї кухні ",
+export const titleKitchen = (language, number) => {
+  if (language === "en") {
+    return `Schedule for cleaning the ${number}-th kitchen`;
+  }
+  if (language === "ua") {
+    return `Графік прибирання ${number}-ї кухні `;
+  }
 };
