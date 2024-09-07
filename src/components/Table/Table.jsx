@@ -71,7 +71,12 @@ export default function BasicTable({
 
   const [room, setRoom] = useState("");
 
-  const handleChecked = (e, id) => {
+  const handleChecked = (e, id, checked) => {
+    if (checked?.checker) {
+      if (checked.isDone && user.uid !== checked?.checker.userId) {
+        return;
+      }
+    }
     dicpatch(
       updateScheduleByIdThunk({
         nameCollection,
@@ -81,7 +86,7 @@ export default function BasicTable({
             isDone: e.target.checked,
             checker: {
               displayName: user?.roomNumber ?? user?.displayName ?? "",
-              id,
+              userId: user.uid,
             },
           },
         },
@@ -223,7 +228,7 @@ export default function BasicTable({
                       {task[language]}
                     </TableCell>
 
-                    {authentificated && (
+                    {authentificated && user?.emailVerified && (
                       <TableCell
                         align="center"
                         sx={{
@@ -235,7 +240,7 @@ export default function BasicTable({
                         <Checkbox
                           disabled={isLoading}
                           checked={checked.isDone}
-                          onChange={(e) => handleChecked(e, _id)}
+                          onChange={(e) => handleChecked(e, _id, checked)}
                           color="success"
                         />
                         {checked?.isDone && (

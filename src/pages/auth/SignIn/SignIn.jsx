@@ -24,6 +24,7 @@ import {
   selectAuthLoading,
 } from "../../../redux/authSlice";
 import AuthGoogleButton from "../AuthGoogleButton/AuthGoogleButton";
+import WaitAuth from "../WaitAuth/WaitAuth";
 
 const SignIn = () => {
   const [actualStateInputs, setActualStateInputs] = useState(
@@ -69,6 +70,7 @@ const SignIn = () => {
 
   return (
     <>
+      {isLoading && <WaitAuth language={language} isLoading={isLoading} />}
       <FormWrapper onSubmit={handleSubmit(onSubmit)}>
         <Typography variant="h5" sx={{ mb: 3 }}>
           {language === "en" ? "Sign in" : "Увійти"}

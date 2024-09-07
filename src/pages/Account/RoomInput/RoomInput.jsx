@@ -48,11 +48,18 @@ export default function RoomInput({
       setRoomValue(onlyNumbers);
     }
   };
-  console.log(user);
+
   return (
     <>
       <Typography>
         {language === "en" ? "Room:" : "Кімніта:"}{" "}
+        {!user?.roomNumber && !isRoomInput && (
+          <Typography variant="caption" component="span">
+            {language === "en"
+              ? "Enter your room number"
+              : "Введіть номер вашої кімнати"}
+          </Typography>
+        )}
         <Typography variant="subtitle2" component="span">
           {!isRoomInput && user?.roomNumber}
         </Typography>

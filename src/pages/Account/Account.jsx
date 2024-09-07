@@ -7,14 +7,16 @@ import {
 import { Button, Typography } from "@mui/material";
 import { InfoWrapper, MainWrapper, TextWrapper } from "./Account.styled";
 import { selectLanguage } from "../../redux/localOperation";
-import { logOutThunk } from "../../redux/authOparations";
+import { logOutThunk, verifiEmailThunk } from "../../redux/authOparations";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginInput from "./LoginInput/LoginInput";
 import UserPhoto from "./UserPhoto/UserPhoto";
 import { AlertComponent } from "../../components/AlertComponent/AlertComponent";
 import Admins from "./Admins/Admins";
 import RoomInput from "./RoomInput/RoomInput";
+import GppMaybeIcon from "@mui/icons-material/GppMaybe";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 
 export default function Account() {
   const user = useSelector(selectAuthUser);
@@ -30,8 +32,40 @@ export default function Account() {
 
   const dispatch = useDispatch();
 
-  const hendleLogOut = () => dispatch(logOutThunk());
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const savedTime = localStorage.getItem("timeLeft");
+    return savedTime ? JSON.parse(savedTime) : 60;
+  });
 
+  const [isActive, setIsActive] = useState(() => {
+    const savedActiveState = localStorage.getItem("isActive");
+    return savedActiveState ? JSON.parse(savedActiveState) : false;
+  });
+
+  useEffect(() => {
+    if (!user?.emailVerified) {
+      let timer;
+      if (isActive && timeLeft > 0) {
+        timer = setInterval(() => {
+          setTimeLeft((prevTime) => prevTime - 1);
+        }, 1000);
+      } else if (timeLeft === 0) {
+        clearInterval(timer);
+        setIsActive(false);
+      }
+
+      localStorage.setItem("timeLeft", JSON.stringify(timeLeft));
+      localStorage.setItem("isActive", JSON.stringify(isActive));
+
+      return () => clearInterval(timer);
+    }
+  }, [isActive, timeLeft, user?.emailVerified]);
+
+  const handleVerifiEmail = () => {
+    dispatch(verifiEmailThunk({ setIsActive }));
+    setTimeLeft(60);
+  };
+  const hendleLogOut = () => dispatch(logOutThunk());
   return (
     <MainWrapper>
       <AlertComponent />
@@ -54,6 +88,28 @@ export default function Account() {
           />
         </TextWrapper>
 
+        {!user?.emailVerified && (
+          <>
+            <Typography variant="caption" textAlign="center">
+              {language === "en"
+                ? "Verify your email to have more opportunities"
+                : "Веріфікуй свій емейл щоб мати більше можливостей"}
+            </Typography>
+            {timeLeft > 0 ? (
+              <Typography textAlign="center">{timeLeft}</Typography>
+            ) : (
+              <Button
+                type="button"
+                size="small"
+                onClick={handleVerifiEmail}
+                disabled={isActive || isLoading}
+              >
+                {language === "en" ? "to verify" : "верифікувати"}
+              </Button>
+            )}
+          </>
+        )}
+
         <TextWrapper elevation={2}>
           <Typography>
             {language === "en" ? "Email:" : "Пошта:"}{" "}
@@ -61,6 +117,12 @@ export default function Account() {
               {user?.email}
             </Typography>
           </Typography>
+
+          {user?.emailVerified ? (
+            <VerifiedUserIcon color="success" />
+          ) : (
+            <GppMaybeIcon color="warning" />
+          )}
         </TextWrapper>
         <TextWrapper elevation={2}>
           <Typography whiteSpace="nowrap">

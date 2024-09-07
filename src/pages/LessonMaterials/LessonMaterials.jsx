@@ -30,7 +30,7 @@ export default function LessonMaterials({
   const currentUser = useSelector(selectAuthUser);
   const theme = useSelector(selectTheme);
   const authentificated = useSelector(selectAuthentificated);
-  console.log(lessonMaterials);
+
   const dispatch = useDispatch();
 
   const [textComment, setTextComment] = useState({});

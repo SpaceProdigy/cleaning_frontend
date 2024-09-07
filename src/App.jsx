@@ -16,6 +16,7 @@ import { MainConteiner, MainDiv } from "./App.styled.jsx";
 import { pathPages } from "./locales/pathPages.js";
 import { selectAuthentificated } from "./redux/authSlice.js";
 import CleaningSchedule from "./routs/Cleaning/CleaningSchedule.jsx";
+import { AlertComponent } from "./components/AlertComponent/AlertComponent.jsx";
 
 // New connected
 
@@ -45,6 +46,7 @@ function App() {
           <HeaderBar />
 
           <main style={{ flex: 1, width: "100%" }}>
+            <AlertComponent />
             <MainConteiner>
               <Suspense fallback={<Loader />}>
                 <Routes>

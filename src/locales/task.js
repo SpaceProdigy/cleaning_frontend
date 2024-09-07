@@ -7,5 +7,5 @@ export const blueCorridorTasksList = [
 
 export const kitchen4TasksList = [
   { id: 1, en: "Take out the trash", ua: "Винести сміття" },
-  { id: 2, en: "Cleaning the kitchen", ua: "Прибірання кухні" },
+  { id: 2, en: "Cleaning the kitchen", ua: "Прибирання кухні" },
 ];

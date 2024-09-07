@@ -36,7 +36,6 @@ export default function Comments({
 }) {
   const dispatch = useDispatch();
 
-  console.log({});
   return (
     <Box
       display="flex"

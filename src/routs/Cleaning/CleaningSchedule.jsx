@@ -22,7 +22,7 @@ export default function CleaningSchedule() {
   const navigate = useNavigate();
 
   const { schedule } = useParams();
-  console.log(schedule);
+
   const isValidPath = Object.values(pathPages).includes(schedule);
 
   useEffect(() => {

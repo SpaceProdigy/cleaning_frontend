@@ -5,6 +5,7 @@ import {
   updateProfile,
   signOut,
   signInWithEmailAndPassword,
+  sendEmailVerification,
 } from "firebase/auth";
 import { notify } from "../components/AlertComponent/notify";
 import {
@@ -104,6 +105,29 @@ export const userUpdateThunk = createAsyncThunk(
         );
         return { photoURL };
       }
+    } catch (error) {
+      consolError(error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const verifiEmailThunk = createAsyncThunk(
+  "auth/verifiEmail",
+  async ({ setIsActive }, { rejectWithValue }) => {
+    try {
+      await sendEmailVerification(auth.currentUser);
+
+      const language = await isEn();
+
+      notify(
+        "success",
+        language === "en"
+          ? "Check your email."
+          : "Перевірте вашу електронну пошту."
+      );
+
+      setIsActive(true);
     } catch (error) {
       consolError(error);
       return rejectWithValue(error.message);
