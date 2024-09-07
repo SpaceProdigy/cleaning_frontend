@@ -5,12 +5,14 @@ import {
   InfoWrapper,
   InputsWrapper,
   TextWrapper,
+  WrapperDeleteButton,
 } from "./Admins.styled";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import PropTypes from "prop-types";
 import {
+  Box,
   Button,
   FormControl,
   IconButton,
@@ -22,28 +24,33 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { updatePermissionsThunk } from "../../../redux/authOparations";
-import { notify } from "../../../components/AlertComponent/notify";
+import { addAdminThunk, fetchAdminsThunk } from "../../../redux/authOparations";
+import { pathPages } from "../../../locales/pathPages";
+import { useSelector } from "react-redux";
+import { selectAuthAdmins } from "../../../redux/authSlice";
 
-export default function Admins({ dispatch, isLoading, admins, language }) {
-  const [selectAdmins, setSelectAdmins] = useState("superAdmin");
+const adminsArr = [
+  ...Object.values(pathPages).slice(0, -3),
+  "superAdmin",
+  "admin",
+];
+
+export default function Admins({ dispatch, isLoading }) {
+  const [selectAdmins, setSelectAdmins] = useState("admin");
   const [emailInput, setEmailInput] = useState("");
 
-  const allPermissions = Object.entries(admins[0]);
+  const admins = useSelector(selectAuthAdmins);
 
-  const currentPermissions = allPermissions
-    .filter(([key]) => key !== "id")
-    .map(([key, value]) => ({ key, value }));
+  const handleClick = () => {
+    dispatch(fetchAdminsThunk(adminsArr));
+  };
 
-  const handleDelete = async (key, email) => {
-    if (!key || !email) {
-      return;
-    }
-    const copyArr = [...admins[0][key]];
-    const updateArr = copyArr.filter((currentEmail) => currentEmail !== email);
-
-    await dispatch(
-      updatePermissionsThunk({ data: { [key]: updateArr }, type: "delete" })
+  const handleDeleteAdmin = (MD_id) => {
+    dispatch(
+      addAdminThunk({
+        type: "delete",
+        userId: MD_id,
+      })
     );
   };
 
@@ -58,79 +65,81 @@ export default function Admins({ dispatch, isLoading, admins, language }) {
       return;
     }
 
-    const updateArr = [...admins[0][selectAdmins]];
-
-    if (updateArr.includes(emailInput.trim())) {
-      notify(
-        "error",
-        language === "en"
-          ? "This email address already exists"
-          : "Ця електронна адреса вже існує"
-      );
-      return;
-    }
-    updateArr.push(emailInput.trim());
-
     dispatch(
-      updatePermissionsThunk({
-        data: { [selectAdmins]: updateArr },
+      addAdminThunk({
+        userId: !emailInput.includes("@") ? emailInput : null,
+        role: selectAdmins,
+        email: emailInput.includes("@") ? emailInput : null,
         type: "add",
       })
     );
-    setEmailInput("");
   };
 
   return (
     <>
       <InfoWrapper>
-        {currentPermissions &&
-          currentPermissions.map((el) => (
-            <AdminWrapper key={nanoid()} elevation={2}>
-              <Typography variant="h6" color="#9ACD32">
-                {el.key.toLocaleUpperCase()}
-              </Typography>
-              {el.value.length > 0 ? (
-                el.value.map((email) => (
-                  <TextWrapper key={nanoid()} elevation={3}>
-                    <Typography>{email}</Typography>
+        <Box>
+          <Button
+            type="button"
+            disabled={isLoading}
+            variant="contained"
+            onClick={handleClick}
+          >
+            Fetch admins
+          </Button>
+        </Box>
 
+        <AdminWrapper>
+          {admins?.length > 0 &&
+            admins?.map(({ email, role, userId, displayName, _id }) => {
+              if (role.includes("viewer") && role.length === 1) {
+                return;
+              }
+              return (
+                <TextWrapper key={_id} elevation={3}>
+                  <WrapperDeleteButton>
                     <IconButton
+                      size="small"
                       color="error"
-                      disabled={isLoading}
-                      onClick={() => handleDelete(el.key, email)}
+                      onClick={() => handleDeleteAdmin(_id)}
                     >
-                      <DeleteIcon />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
-                  </TextWrapper>
-                ))
-              ) : (
-                <Typography variant="subtitle2" color="#800080">
-                  {language === "en"
-                    ? " No admins here yet"
-                    : "Тут ще немає адміністраторів"}
-                </Typography>
-              )}
-            </AdminWrapper>
-          ))}
+                  </WrapperDeleteButton>
 
-        <Paper elevation={2} sx={{ p: "20px" }}>
+                  <Typography variant="subtitle2">
+                    ROLE:
+                    {role.map((item, _, arr) =>
+                      arr.length > 1 ? ` ${item} /` : ` ${item} `
+                    )}
+                  </Typography>
+                  <Typography variant="subtitle2">ID: {userId}</Typography>
+                  <Typography variant="subtitle2">Email: {email}</Typography>
+                  <Typography variant="subtitle2">
+                    Login: {displayName}
+                  </Typography>
+                </TextWrapper>
+              );
+            })}
+        </AdminWrapper>
+        <Paper elevation={2} sx={{ p: "20px", width: "100%" }}>
           <FormWrapper onSubmit={handleSubmit}>
             <Paper elevation={3} sx={{ p: "20px", width: "100%" }}>
               <Typography textAlign="center" color="#FFD700">
-                Add Email
+                Add Email or ID
               </Typography>
             </Paper>
             <InputsWrapper elevation={3}>
               <FormControl fullWidth>
-                <InputLabel>Admins</InputLabel>
+                <InputLabel>Roles</InputLabel>
                 <Select
                   value={selectAdmins}
-                  label="Admins"
+                  label="Roles"
                   onChange={(e) => setSelectAdmins(e.target.value)}
                 >
-                  {currentPermissions.map((el) => (
-                    <MenuItem key={nanoid()} value={el.key}>
-                      {el.key}
+                  {adminsArr.map((el) => (
+                    <MenuItem key={nanoid()} value={el}>
+                      {el}
                     </MenuItem>
                   ))}
                 </Select>
@@ -139,7 +148,7 @@ export default function Admins({ dispatch, isLoading, admins, language }) {
               <TextField
                 fullWidth
                 sx={{ mt: 2 }}
-                label="Email"
+                label="Email or ID"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
               />
@@ -157,6 +166,5 @@ export default function Admins({ dispatch, isLoading, admins, language }) {
 Admins.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   dispatch: PropTypes.func.isRequired,
-  admins: PropTypes.array.isRequired,
   language: PropTypes.string.isRequired,
 };

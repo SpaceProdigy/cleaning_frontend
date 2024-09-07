@@ -4,60 +4,60 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { userUpdateThunk } from "../../../redux/authOparations";
+import { userUpdateRoomThunk } from "../../../redux/authOparations";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import CloseIcon from "@mui/icons-material/Close";
-import { LoginWrapper } from "./LoginInput.styled";
+import { RoomWrapper } from "./RoomInput.styled";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../../redux/localOperation";
 
-export default function LoginInput({
-  setIsLoginInput,
-  loginValue,
+export default function RoomInput({
+  isRoomInput,
+  setIsRoomInput,
+  roomValue,
+  setRoomValue,
   dispatch,
-  setLoginValue,
-  isLoginInput,
   user,
   isLoading,
 }) {
   const language = useSelector(selectLanguage);
   const hendleLoginInput = () => {
-    setIsLoginInput(true);
+    setIsRoomInput(true);
   };
 
-  const hendleLoginInputClose = () => {
-    setIsLoginInput(false);
+  const hendleRoomInputClose = () => {
+    setIsRoomInput(false);
   };
 
-  const hendleAddLogin = async () => {
+  const hendleAddRoom = async () => {
     await dispatch(
-      userUpdateThunk({
-        displayName: loginValue,
-        userId: user?.uid,
-        type: "updateDisplayName",
-      })
+      userUpdateRoomThunk({ id: user.uid, roomNumber: Number(roomValue) })
     );
-    if (loginValue) {
-      setIsLoginInput(false);
+    if (roomValue) {
+      setIsRoomInput(false);
     }
   };
 
   const handleChange = (newValue) => {
-    if (newValue.length <= 30) {
-      setLoginValue(newValue);
+    // Проверяем, состоит ли строка только из цифр
+    const onlyNumbers = newValue.replace(/\D/g, ""); // \D означает все, кроме цифр
+
+    if (onlyNumbers.length <= 5) {
+      setRoomValue(onlyNumbers);
     }
   };
+  console.log(user);
   return (
     <>
       <Typography>
-        {language === "en" ? "Login:" : "Логін:"}{" "}
+        {language === "en" ? "Room:" : "Кімніта:"}{" "}
         <Typography variant="subtitle2" component="span">
-          {!isLoginInput && user?.displayName}
+          {!isRoomInput && user?.roomNumber}
         </Typography>
       </Typography>
-      {!isLoginInput && (
+      {!isRoomInput && (
         <IconButton
           color="info"
           onClick={hendleLoginInput}
@@ -66,19 +66,19 @@ export default function LoginInput({
           <EditIcon />
         </IconButton>
       )}
-      {isLoginInput && (
-        <LoginWrapper>
+      {isRoomInput && (
+        <RoomWrapper>
           <TextField
-            value={loginValue}
+            value={roomValue}
             onChange={(e) => handleChange(e.target.value)}
             variant="standard"
-            helperText="Max 30 characters"
+            helperText="Max 5 characters"
             style={{ minWidth: 150 }}
           />
-          {loginValue.length > 2 && (
+          {roomValue.length > 0 && (
             <IconButton
               color="success"
-              onClick={hendleAddLogin}
+              onClick={hendleAddRoom}
               disabled={isLoading}
             >
               {!isLoading && <AddCircleIcon />}
@@ -88,23 +88,23 @@ export default function LoginInput({
 
           <IconButton
             color="info"
-            onClick={hendleLoginInputClose}
+            onClick={hendleRoomInputClose}
             disabled={isLoading}
           >
             <CloseIcon />
           </IconButton>
-        </LoginWrapper>
+        </RoomWrapper>
       )}
     </>
   );
 }
 
-LoginInput.propTypes = {
-  setIsLoginInput: PropTypes.func.isRequired,
-  loginValue: PropTypes.string.isRequired,
+RoomInput.propTypes = {
+  setIsRoomInput: PropTypes.func.isRequired,
+  roomValue: PropTypes.string.isRequired,
+  isRoomInput: PropTypes.bool.isRequired,
+  setRoomValue: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
-  setLoginValue: PropTypes.func.isRequired,
-  isLoginInput: PropTypes.bool.isRequired,
   user: PropTypes.object.isRequired,
   isLoading: PropTypes.bool.isRequired,
 };

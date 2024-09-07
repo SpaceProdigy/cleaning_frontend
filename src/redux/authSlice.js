@@ -7,6 +7,9 @@ import {
   userUpdateThunk,
   fetchAdminsThunk,
   updatePermissionsThunk,
+  userUpdateRoomThunk,
+  addAdminThunk,
+  registerThunk,
 } from "./authOparations";
 
 const authState = {
@@ -15,10 +18,8 @@ const authState = {
   userData: null,
   token: null,
   authentificated: false,
-  permissions: {
-    superAdmin: false,
-  },
-  admins: [[]],
+  permissions: ["viewer"],
+  admins: [],
 };
 
 const resetAuthState = (state) => {
@@ -27,10 +28,7 @@ const resetAuthState = (state) => {
   state.userData = null;
   state.token = null;
   state.authentificated = false;
-  state.permissions = {
-    jill: false,
-    superAdmin: false,
-  };
+  state.permissions = ["viewer"];
   state.admins = [];
 };
 
@@ -49,6 +47,16 @@ const authSlice = createSlice({
   initialState: authState,
   extraReducers: (builder) =>
     builder
+      // ----- REGISTER USER -----
+      .addCase(registerThunk.pending, handlePending)
+      .addCase(registerThunk.rejected, handleRejected)
+      .addCase(registerThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload) {
+          state.userData = { ...state.userData, ...action.payload };
+        }
+      })
+
       // ----- CURRENT USER -----
       .addCase(currentUserThunk.pending, handlePending)
       .addCase(currentUserThunk.rejected, handleRejected)
@@ -58,14 +66,22 @@ const authSlice = createSlice({
           state.authentificated = true;
           state.userData = action.payload.user;
           state.token = action.payload.accessToken;
-          state.permissions = {
-            ...state.permissions,
-            ...action.payload.permissions,
-          };
-          state.admins = action.payload.admins;
+          state.permissions = action.payload.permissions;
         } else {
           resetAuthState(state);
         }
+      })
+
+      //----- UPDATE ROOM-----
+      .addCase(userUpdateRoomThunk.pending, handlePending)
+      .addCase(userUpdateRoomThunk.rejected, handleRejected)
+      .addCase(userUpdateRoomThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.userData = {
+          ...state.userData,
+          ...{ roomNumber: action.payload?.roomNumber ?? null },
+        };
       })
 
       //----- UPDATE USER -----
@@ -76,6 +92,7 @@ const authSlice = createSlice({
         state.error = null;
         state.userData = { ...state.userData, ...action.payload };
       })
+
       //----- FETCH ADMINS -----
       .addCase(fetchAdminsThunk.pending, handlePending)
       .addCase(fetchAdminsThunk.rejected, handleRejected)
@@ -85,13 +102,33 @@ const authSlice = createSlice({
         state.admins = action.payload;
       })
 
+      //----- ADD ADMINS -----
+      .addCase(addAdminThunk.pending, handlePending)
+      .addCase(addAdminThunk.rejected, handleRejected)
+      .addCase(addAdminThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        const index = state.admins.findIndex(
+          ({ _id }) => _id === action.payload._id
+        );
+        if (index !== -1) {
+          state.admins.splice(index, 1, action.payload);
+        } else {
+          state.admins = [...state.admins, action.payload];
+        }
+      })
+
       //----- UPDATE ADMINS -----
       .addCase(updatePermissionsThunk.pending, handlePending)
       .addCase(updatePermissionsThunk.rejected, handleRejected)
       .addCase(updatePermissionsThunk.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        state.admins = [{ ...state.admins[0], ...action.payload }];
+
+        const updatedArr = state.admins.filter(
+          ({ userId }) => userId !== action.payload
+        );
+        state.admins = updatedArr;
       }),
 });
 

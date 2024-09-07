@@ -30,7 +30,7 @@ import {
 import dayjs from "dayjs";
 import { useState } from "react";
 import { updateScheduleByIdThunk } from "../../redux/cleaningOperations";
-import { selectAuthUser } from "../../redux/authSlice";
+import { selectAuthentificated, selectAuthUser } from "../../redux/authSlice";
 
 BasicTable.propTypes = {
   isDeleteModal: PropTypes.bool,
@@ -60,10 +60,13 @@ export default function BasicTable({
   const language = useSelector(selectLanguage);
   const schedulesArr = useSelector(selectSchedulesArr);
   const isLoading = useSelector(selectLessonsLoading);
-  const { displayName = "No name" } = useSelector(selectAuthUser) || {};
+  const authentificated = useSelector(selectAuthentificated);
+  const user = useSelector(selectAuthUser) || {};
 
-  const user = useSelector(selectAuthUser);
-  console.log(user);
+  // const user = useSelector(selectAuthUser);
+  // console.log(roomNumber);
+  // console.log(authentificated);
+
   const dicpatch = useDispatch();
 
   const [room, setRoom] = useState("");
@@ -74,7 +77,13 @@ export default function BasicTable({
         nameCollection,
         id,
         updateValue: {
-          checked: { isDone: e.target.checked, checker: { displayName, id } },
+          checked: {
+            isDone: e.target.checked,
+            checker: {
+              displayName: user?.roomNumber ?? user?.displayName ?? "",
+              id,
+            },
+          },
         },
       })
     );
@@ -214,29 +223,31 @@ export default function BasicTable({
                       {task[language]}
                     </TableCell>
 
+                    {authentificated && (
+                      <TableCell
+                        align="center"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                        }}
+                      >
+                        <Checkbox
+                          disabled={isLoading}
+                          checked={checked.isDone}
+                          onChange={(e) => handleChecked(e, _id)}
+                          color="success"
+                        />
+                        {checked?.isDone && (
+                          <Typography variant="caption" whiteSpace="nowrap">
+                            {checked?.checker?.displayName}
+                          </Typography>
+                        )}
+                      </TableCell>
+                    )}
+
                     {permissions && (
                       <>
-                        <TableCell
-                          align="center"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
-                          <Checkbox
-                            disabled={isLoading}
-                            checked={checked.isDone}
-                            onChange={(e) => handleChecked(e, _id)}
-                            color="success"
-                          />
-                          {checked?.isDone && (
-                            <Typography variant="caption">
-                              {checked?.checker?.displayName}
-                            </Typography>
-                          )}
-                        </TableCell>
-
                         <TableCell align="center">
                           <IconButton
                             color="secondary"

@@ -41,7 +41,7 @@ export const getScheduleThunk = createAsyncThunk(
   async ({ nameCollection, locationMonth }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `${BASE_URL}${nameCollection}/${locationMonth}`
+        `${BASE_URL}cleaning/${nameCollection}/${locationMonth}`
       );
 
       return data;
@@ -55,7 +55,10 @@ export const addScheduleThunk = createAsyncThunk(
   "cleaning/add",
   async ({ nameCollection, data }, { rejectWithValue }) => {
     try {
-      const respond = await axios.post(`${BASE_URL}${nameCollection}`, data);
+      const respond = await axios.post(
+        `${BASE_URL}cleaning/${nameCollection}`,
+        data
+      );
       notify(
         "success",
         language === "en"
@@ -105,10 +108,10 @@ export const getScheduleByIdThunk = createAsyncThunk(
 );
 
 export const deleteScheduleByIdThunk = createAsyncThunk(
-  "lessonsWithJill /deleteById",
+  "cleaning/deleteById",
   async ({ nameCollection, id }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${BASE_URL}${nameCollection}/${id}`);
+      await axios.delete(`${BASE_URL}cleaning/${nameCollection}/${id}`);
       notify(
         "success",
         language === "en"
@@ -125,11 +128,11 @@ export const deleteScheduleByIdThunk = createAsyncThunk(
 );
 
 export const updateScheduleByIdThunk = createAsyncThunk(
-  "cleaning /updateById",
+  "cleaning/updateById",
   async ({ nameCollection, id, updateValue }, { rejectWithValue }) => {
     try {
       const { data } = await axios.patch(
-        `${BASE_URL}${nameCollection}/${id}`,
+        `${BASE_URL}cleaning/${nameCollection}/${id}`,
         updateValue
       );
       notify(
