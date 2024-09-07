@@ -2,7 +2,7 @@ import { lazy, useEffect } from "react";
 
 import { useSelector } from "react-redux";
 import { selectAuthPermissions } from "../../redux/authSlice.js";
-import { blueCorridorRange, kitchen4Range } from "../../locales/roomsRange.js";
+import { corridorRange, kitchen4Range } from "../../locales/roomsRange.js";
 import image1 from "../../pictures/pageSchedule/clean1.jpg";
 import {
   blueCorridorTasksList,
@@ -18,10 +18,11 @@ const Schedule = lazy(() => import("../../pages/Schedule/Schedule.jsx"));
 export default function CleaningSchedule() {
   const language = useSelector(selectLanguage);
   const permissions = useSelector(selectAuthPermissions);
+
   const navigate = useNavigate();
 
   const { schedule } = useParams();
-
+  console.log(schedule);
   const isValidPath = Object.values(pathPages).includes(schedule);
 
   useEffect(() => {
@@ -40,9 +41,13 @@ export default function CleaningSchedule() {
           mainTitle={titleCorridor(language, schedule.slice(0, -8))}
           taskList={blueCorridorTasksList}
           image={image1}
-          corridorRange={blueCorridorRange}
+          corridorRange={corridorRange}
           nameCollection={schedule}
-          permissions={permissions?.jill || permissions?.superAdmin}
+          permissions={
+            permissions.includes("superAdmin") ||
+            permissions.includes("admin") ||
+            permissions.includes(schedule)
+          }
         />
       )}
 
@@ -53,9 +58,14 @@ export default function CleaningSchedule() {
           image={image1}
           corridorRange={kitchen4Range}
           nameCollection={schedule}
-          permissions={permissions?.jill || permissions?.superAdmin}
+          permissions={
+            permissions.includes("superAdmin") ||
+            permissions.includes("admin") ||
+            permissions.includes(schedule)
+          }
         />
       )}
     </>
   );
 }
+// ???

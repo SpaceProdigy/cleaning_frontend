@@ -1,7 +1,9 @@
-import { Paper, styled } from "@mui/material";
+import { Box, Paper, styled } from "@mui/material";
 
 export const InfoWrapper = styled(Paper)`
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
   gap: 20px;
   padding: 20px;
@@ -12,6 +14,7 @@ export const InfoWrapper = styled(Paper)`
 export const AdminWrapper = styled(Paper)`
   display: flex;
   flex-direction: column;
+  width: 100%;
   gap: 20px;
   overflow: auto;
   scrollbar-width: thin;
@@ -19,10 +22,14 @@ export const AdminWrapper = styled(Paper)`
   gap: 20px;
 `;
 
+export const WrapperDeleteButton = styled(Box)`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+`;
+
 export const TextWrapper = styled(Paper)`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: relative;
   overflow: auto;
   scrollbar-width: thin;
   padding: 20px;

@@ -7,17 +7,19 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { notify } from "../components/AlertComponent/notify";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
 import {
   getDownloadURL,
   getStorage,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { collectionDb } from "../locales/collectionDb";
+import axios from "axios";
 
 const auth = getAuth();
+
+const ENV = import.meta.env;
+
+const BASE_URL = ENV.VITE_BASE_URL;
 
 const localStorString = JSON.parse(
   localStorage.getItem("persist:basicSettings")
@@ -51,17 +53,16 @@ const isEn = async () => {
 };
 
 export const fetchAdminsThunk = createAsyncThunk(
-  "auth /fetchAdmins",
-  async (_, { rejectWithValue }) => {
+  "auth/fetchAdmins",
+  async (adminsArr, { rejectWithValue }) => {
     try {
-      const response = await getDocs(collection(db, "admins"));
+      const { data } = await axios.get(`${BASE_URL}users/admins`, {
+        headers: {
+          adminsarr: JSON.stringify(adminsArr),
+        },
+      });
 
-      const adminsArr = response.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      return adminsArr;
+      return data;
     } catch (error) {
       consolError(error);
       return rejectWithValue(error.message);
@@ -70,11 +71,39 @@ export const fetchAdminsThunk = createAsyncThunk(
 );
 
 export const userUpdateThunk = createAsyncThunk(
-  "auth /update",
-  async (data, { rejectWithValue }) => {
+  "auth/update",
+  async (
+    { photoURL, displayName, userId, type = false },
+    { rejectWithValue }
+  ) => {
     try {
-      await updateProfile(auth.currentUser, data);
-      return data;
+      if (type === "updateDisplayName") {
+        await updateProfile(auth.currentUser, { displayName });
+
+        await axios.patch(`${BASE_URL}users/${userId}`, {
+          displayName,
+        });
+
+        notify(
+          "success",
+          language === "en"
+            ? "The login has been updated successfully."
+            : "Логін успішно оновлено"
+        );
+
+        return { displayName };
+      }
+
+      if (type === "updatePhotoURL") {
+        await updateProfile(auth.currentUser, { photoURL });
+        notify(
+          "success",
+          language === "en"
+            ? "The Photo has been updated successfully."
+            : "Фото успішно оновлено"
+        );
+        return { photoURL };
+      }
     } catch (error) {
       consolError(error);
       return rejectWithValue(error.message);
@@ -91,6 +120,18 @@ export const registerThunk = createAsyncThunk(
       await updateProfile(auth.currentUser, {
         displayName: data.login,
       });
+
+      const { displayName, uid, email } = auth.currentUser;
+
+      await axios.patch(
+        `${BASE_URL}users/${uid}`,
+        {
+          displayName,
+        },
+        { params: { email: email ?? null } }
+      );
+
+      return { displayName };
     } catch (error) {
       const language = await isEn();
       notify(
@@ -125,7 +166,7 @@ export const loginThunk = createAsyncThunk(
 );
 
 export const currentUserThunk = createAsyncThunk(
-  "auth /currentUser",
+  "auth/currentUser",
   async (data, { rejectWithValue }) => {
     try {
       if (data) {
@@ -140,6 +181,15 @@ export const currentUserThunk = createAsyncThunk(
           uid,
         } = data;
 
+        console.log(data);
+
+        const response = await axios.get(`${BASE_URL}users/${uid}`, {
+          params: {
+            email,
+            displayName,
+          },
+        });
+
         const userInfo = {
           accessToken: { accessToken },
           user: {
@@ -150,38 +200,82 @@ export const currentUserThunk = createAsyncThunk(
             phoneNumber,
             photoURL,
             uid,
+            roomNumber: response?.data?.roomNumber ?? null,
           },
-          permissions: {},
+          permissions: [...(response?.data?.role ?? "viewer")],
         };
 
-        const response = await getDocs(collection(db, "admins"));
-
-        const adminsArr = response.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        const adminsRole = Object.entries(adminsArr[0]);
-
-        // eslint-disable-next-line no-unused-vars
-        const currentUser = adminsRole.find(([admin, emailArr]) =>
-          emailArr.includes(email)
-        );
-
-        if (currentUser) {
-          return {
-            ...userInfo,
-            permissions: { [currentUser[0]]: true },
-            admins: adminsArr,
-          };
-        }
-
-        return {
-          ...userInfo,
-          admins: adminsArr,
-          permissions: { justUser: true },
-        };
+        return userInfo;
       }
+    } catch (error) {
+      consolError(error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const addAdminThunk = createAsyncThunk(
+  "auth/addAdmin",
+  async ({ userId, role, email, type }, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.patch(
+        `${BASE_URL}users/admins${userId ? `/${userId}` : ""}`,
+        {
+          role,
+        },
+        {
+          headers: {
+            email: email ?? null,
+            remove: type === "delete" ? true : null,
+          },
+        }
+      );
+
+      if (type === "delete") {
+        notify(
+          "success",
+          language === "en"
+            ? "Rights successfully removed"
+            : "Права успішно видалено"
+        );
+      }
+
+      if (type === "add") {
+        notify(
+          "success",
+          language === "en"
+            ? "Rights successfully added"
+            : "Права успішно додано"
+        );
+      }
+
+      return data;
+    } catch (error) {
+      consolError(error);
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const userUpdateRoomThunk = createAsyncThunk(
+  "auth/updateRoom",
+  async ({ id, roomNumber, email }, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.patch(
+        `${BASE_URL}users/${id}`,
+        {
+          roomNumber,
+        },
+        { params: { email: email ?? null } }
+      );
+
+      notify(
+        "success",
+        language === "en"
+          ? "The room has been updated successfully."
+          : "Кімнату успішно оновлено"
+      );
+      return data;
     } catch (error) {
       consolError(error);
       return rejectWithValue(error.message);
@@ -261,8 +355,9 @@ export const uploadPhotoThunk = createAsyncThunk(
         );
       });
 
-      await dispatch(userUpdateThunk({ photoURL: newPhotoUrl }));
-      return;
+      await dispatch(
+        userUpdateThunk({ photoURL: newPhotoUrl, type: "updatePhotoURL" })
+      );
     } catch (error) {
       someThingWrongAlarm();
       return rejectWithValue(error.message);
@@ -272,14 +367,12 @@ export const uploadPhotoThunk = createAsyncThunk(
 
 export const updatePermissionsThunk = createAsyncThunk(
   "auth/updatePermissions",
-  async (data, { rejectWithValue }) => {
+  async ({ updateRole, type, userId }, { rejectWithValue }) => {
     try {
-      console.log(data);
-      const docRef = doc(db, collectionDb.admins, "permissions");
+      console.log(updateRole);
+      await axios.patch(`${BASE_URL}users/${userId}`, updateRole);
 
-      await updateDoc(docRef, data.data);
-
-      if (data.type === "delete") {
+      if (type === "delete") {
         notify(
           "success",
           language === "en"
@@ -288,7 +381,7 @@ export const updatePermissionsThunk = createAsyncThunk(
         );
       }
 
-      if (data.type === "add") {
+      if (type === "add") {
         notify(
           "success",
           language === "en"
@@ -297,7 +390,7 @@ export const updatePermissionsThunk = createAsyncThunk(
         );
       }
 
-      return data.data;
+      return userId;
     } catch (error) {
       console.log(error);
       someThingWrongAlarm();

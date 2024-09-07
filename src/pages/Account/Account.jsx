@@ -1,6 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectAuthAdmins,
   selectAuthLoading,
   selectAuthPermissions,
   selectAuthUser,
@@ -15,24 +14,21 @@ import LoginInput from "./LoginInput/LoginInput";
 import UserPhoto from "./UserPhoto/UserPhoto";
 import { AlertComponent } from "../../components/AlertComponent/AlertComponent";
 import Admins from "./Admins/Admins";
+import RoomInput from "./RoomInput/RoomInput";
 
 export default function Account() {
   const user = useSelector(selectAuthUser);
   const permissions = useSelector(selectAuthPermissions);
-  const admins = useSelector(selectAuthAdmins);
   const language = useSelector(selectLanguage);
   const isLoading = useSelector(selectAuthLoading);
   const [isLoginInput, setIsLoginInput] = useState(false);
   const [loginValue, setLoginValue] = useState(user?.displayName ?? "");
+  const [isRoomInput, setIsRoomInput] = useState(false);
+  const [roomValue, setRoomValue] = useState(
+    user?.roomNumber ? String(user?.roomNumber) : ""
+  );
 
   const dispatch = useDispatch();
-
-  const allPermissions = Object.entries(permissions);
-  const currentPermissions = allPermissions.find((el) => {
-    if (el.includes(true)) {
-      return el;
-    }
-  });
 
   const hendleLogOut = () => dispatch(logOutThunk());
 
@@ -60,7 +56,7 @@ export default function Account() {
 
         <TextWrapper elevation={2}>
           <Typography>
-            Email:{" "}
+            {language === "en" ? "Email:" : "Пошта:"}{" "}
             <Typography variant="subtitle2" component="span">
               {user?.email}
             </Typography>
@@ -68,31 +64,42 @@ export default function Account() {
         </TextWrapper>
         <TextWrapper elevation={2}>
           <Typography whiteSpace="nowrap">
-            User UID:{" "}
+            User ID:{" "}
             <Typography variant="subtitle2" component="span">
               {user?.uid}
             </Typography>
           </Typography>
         </TextWrapper>
 
-        {currentPermissions && (
-          <TextWrapper elevation={2}>
-            <Typography>
-              Role:{" "}
-              <Typography variant="subtitle2" component="span" color="#008000">
-                {currentPermissions[0].toLocaleUpperCase()}
-              </Typography>
+        <TextWrapper elevation={2}>
+          <RoomInput
+            isRoomInput={isRoomInput}
+            setIsRoomInput={setIsRoomInput}
+            roomValue={roomValue}
+            setRoomValue={setRoomValue}
+            dispatch={dispatch}
+            user={user}
+            isLoading={isLoading}
+          />
+        </TextWrapper>
+
+        <TextWrapper elevation={2}>
+          <Typography>
+            {language === "en" ? "Role:" : "Роль:"}{" "}
+            <Typography variant="subtitle2" component="span" color="#008000">
+              {permissions.map((item, index, arr) =>
+                arr.length === 1
+                  ? item.toLocaleUpperCase()
+                  : index === 0
+                  ? item.toLocaleUpperCase()
+                  : ` / ${item.toLocaleUpperCase()}`
+              )}
             </Typography>
-          </TextWrapper>
-        )}
+          </Typography>
+        </TextWrapper>
       </InfoWrapper>
-      {permissions?.superAdmin && (
-        <Admins
-          dispatch={dispatch}
-          isLoading={isLoading}
-          admins={admins}
-          language={language}
-        />
+      {permissions.includes("superAdmin") && (
+        <Admins dispatch={dispatch} isLoading={isLoading} language={language} />
       )}
 
       <Button type="button" variant="contained" onClick={hendleLogOut}>

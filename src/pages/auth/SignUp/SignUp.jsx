@@ -19,7 +19,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AlertComponent } from "../../../components/AlertComponent/AlertComponent";
 import { selectLanguage } from "../../../redux/localOperation";
 import { NavLink, useNavigate } from "react-router-dom";
-import { selectAuthentificated } from "../../../redux/authSlice";
+import {
+  selectAuthentificated,
+  selectAuthLoading,
+} from "../../../redux/authSlice";
 import AuthGoogleButton from "../AuthGoogleButton/AuthGoogleButton";
 
 const SignUp = () => {
@@ -31,6 +34,7 @@ const SignUp = () => {
 
   const dispatch = useDispatch();
   const authentificated = useSelector(selectAuthentificated);
+  const isLoading = useSelector(selectAuthLoading);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -134,7 +138,13 @@ const SignUp = () => {
             {errors.password?.message[language]}
           </FormHelperText>
         </FormControl>
-        <Button type="submit" variant="contained" fullWidth size="large">
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          size="large"
+          disabled={isLoading}
+        >
           {language === "en" ? "Submit" : "Надіслати"}
         </Button>
         <AuthGoogleButton
