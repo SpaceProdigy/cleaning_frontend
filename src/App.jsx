@@ -17,6 +17,8 @@ import { pathPages } from "./locales/pathPages.js";
 import { selectAuthentificated } from "./redux/authSlice.js";
 import CleaningSchedule from "./routs/Cleaning/CleaningSchedule.jsx";
 
+// New connected
+
 // ROUTS
 const Home = lazy(() => import("./pages/Home/Home.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound/NotFound.jsx"));

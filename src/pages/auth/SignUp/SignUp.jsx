@@ -55,7 +55,8 @@ const SignUp = () => {
   });
 
   const onSubmit = async (data) => {
-    await dispatch(registerThunk(data));
+    console.log(data);
+    dispatch(registerThunk(data));
 
     reset();
     setActualStateInputs(null);
