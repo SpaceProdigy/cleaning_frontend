@@ -1,4 +1,4 @@
-import{s as a,B as n,u as s,a as d,j as e,T as r}from"./index-epYwfhBh.js";import{R as c}from"./index-C0f5s2mc.js";const p={en:"Welcome to our website",ua:"Вітаю вас на нашому сайті"},o="/cleaning_frontend/assets/hero-yK5kWOTn.png",g=a(n)`
+import{s as a,B as n,u as s,a as d,j as e,T as r}from"./index-uB1hKxyu.js";import{R as c}from"./index-FcFSKe_P.js";const p={en:"Welcome to our website",ua:"Вітаю вас на нашому сайті"},o="/cleaning_frontend/assets/hero-yK5kWOTn.png",g=a(n)`
   width: 100%;
   height: 100%;
   background-image: url(${o});
