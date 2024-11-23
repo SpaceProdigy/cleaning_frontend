@@ -156,8 +156,8 @@ export const ModalCalendar = ({
                       >
                         <ListItemText>
                           {language === "en"
-                            ? "Edit lesson"
-                            : "Редагувати урок"}
+                            ? "Edit schedule"
+                            : "Редагувати розклад"}
                         </ListItemText>
                         <ListItemIcon sx={{ ml: 2 }}>
                           <EditIcon color="secondary" />
@@ -171,8 +171,8 @@ export const ModalCalendar = ({
                       >
                         <ListItemText>
                           {language === "en"
-                            ? "Delete a lesson"
-                            : "Видалити урок"}
+                            ? "Delete schedule"
+                            : "Видалити розклад"}
                         </ListItemText>
                         <ListItemIcon sx={{ ml: 2 }}>
                           <DeleteIcon color="error" />

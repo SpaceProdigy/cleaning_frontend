@@ -205,8 +205,6 @@ export const currentUserThunk = createAsyncThunk(
           uid,
         } = data;
 
-        console.log(data);
-
         const response = await axios.get(`${BASE_URL}users/${uid}`, {
           params: {
             email,

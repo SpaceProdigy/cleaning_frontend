@@ -86,7 +86,7 @@ export default function Calendar({
           adapterLocale={language === "ua" ? "uk" : "en"}
         >
           <DateCalendar
-            value={dayjs(`${locationMonth}-${dayjs().day() + 1}`)}
+            value={dayjs().format("YYYY-MM") === locationMonth ? dayjs() : null}
             onMonthChange={(e) => {
               const newUrl = `/${nameCollection}/${e.format("YYYY-MM")}`;
               navigate(newUrl, { replace: true });
