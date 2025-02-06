@@ -1,10 +1,12 @@
 import { Typography } from "@mui/material";
+
 // import { About } from "../../components/About/About";
 import { TypingText } from "../../locales/home";
 import { Hero, WrapperHero, WrapperTitel } from "./Home.styled";
 import { ReactTyped } from "react-typed";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
+// import { Chat } from "../../components/Chat/Chat";
 
 const Home = () => {
   const language = useSelector(selectLanguage);
@@ -40,7 +42,7 @@ const Home = () => {
           </Typography>
         </WrapperTitel>
       </WrapperHero>
-
+      {/* <Chat /> */}
       {/* <About arr={homeInfo[language]} /> */}
     </>
   );
