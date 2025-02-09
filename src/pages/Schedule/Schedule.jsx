@@ -22,6 +22,7 @@ import PropTypes from "prop-types";
 import ModalAddLesson from "./ModalEddLesson/ModalAddLesson";
 import { useLocation, useNavigate } from "react-router-dom";
 import { selectAuthUser } from "../../redux/authSlice";
+import Rulse from "../../components/Rules/Rulse";
 
 const Schedule = ({
   permissions,
@@ -30,6 +31,7 @@ const Schedule = ({
   image,
   taskList,
   mainTitle,
+  cleaningRules,
 }) => {
   const isLoading = useSelector(selectLessonsLoading);
   const { displayName = "No name", uid = "No ID" } =
@@ -207,6 +209,11 @@ const Schedule = ({
                 setIsChooseALesson={setIsChooseALesson}
                 setValueSelect={setValueSelect}
               />
+
+              <Rulse
+                cleaningRules={cleaningRules}
+                nameCollection={nameCollection}
+              />
             </Box>
           </Paper>
         </Box>
@@ -265,4 +272,5 @@ Schedule.propTypes = {
   image: PropTypes.string.isRequired,
   taskList: PropTypes.array.isRequired,
   mainTitle: PropTypes.string.isRequired,
+  cleaningRules: PropTypes.string,
 };

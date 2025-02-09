@@ -12,6 +12,7 @@ import { titleCorridor, titleKitchen } from "../../locales/titels.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { pathPages } from "../../locales/pathPages.js";
 import { selectLanguage } from "../../redux/localOperation.js";
+import { rulesFnc } from "../../locales/rules.js";
 
 const Schedule = lazy(() => import("../../pages/Schedule/Schedule.jsx"));
 
@@ -48,6 +49,7 @@ export default function CleaningSchedule() {
             permissions.includes("admin") ||
             permissions.includes(schedule)
           }
+          cleaningRules={rulesFnc(schedule, language)}
         />
       )}
 

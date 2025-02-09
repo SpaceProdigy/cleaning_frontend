@@ -99,15 +99,36 @@ export default function BasicTable({
     setRoom(event.target.value);
   };
 
-  const currenColor = (theme, date) => {
-    if (dayjs().format("YYYY-MM-DD") === date) {
-      return theme.palette.success.main;
+  const currenColor = (theme, date, isDone) => {
+    const style = {
+      td: {
+        textAlign: "center",
+        whiteSpace: "nowrap",
+      },
+    };
+
+    const today = dayjs().format("YYYY-MM-DD");
+    const isPast = dayjs().isAfter(dayjs(date), "day");
+
+    if (today === date) {
+      style.td.color = isDone
+        ? theme.palette.success.dark
+        : theme.palette.info.dark;
+      style.backgroundColor = isDone && theme.palette.success.dark + 20;
+
+      return style;
     }
-    if (dayjs().isAfter(date)) {
-      return theme.palette.grey[500];
+    if (isPast) {
+      style.td.color = isDone
+        ? theme.palette.success.dark
+        : theme.palette.error.dark;
+      style.backgroundColor = isDone
+        ? theme.palette.success.dark + 20
+        : theme.palette.error.dark + 20;
+      return style;
     }
 
-    return theme.palette.text.main;
+    return style;
   };
 
   const sortArr = [...schedulesArr]?.sort((a, b) => {
@@ -190,98 +211,77 @@ export default function BasicTable({
             {sortArr &&
               sortArr.length > 0 &&
               currentArr().map(
-                ({ _id, date, roomNumber, task, checked }, index, item) => (
-                  <TableRow
-                    key={index}
-                    id={_id}
-                    sx={{
-                      "&:last-child td, &:last-child th": { border: 0 },
-                      background: checked.isDone && "#c8ffd115",
-                    }}
-                  >
-                    <TableCell
-                      align="center"
-                      sx={(theme) => ({
-                        whiteSpace: "nowrap",
-                        color: currenColor(theme, date),
-                      })}
-                    >
-                      {roomNumber}
-                    </TableCell>
+                ({ _id, date, roomNumber, task, checked }, index, item) => {
+                  const isDone = checked.isDone;
 
-                    <TableCell
-                      align="center"
-                      sx={(theme) => ({
-                        whiteSpace: "nowrap",
-                        color: currenColor(theme, date),
-                      })}
+                  return (
+                    <TableRow
+                      key={index}
+                      id={_id}
+                      sx={(theme) => currenColor(theme, date, isDone)}
                     >
-                      {date}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      sx={(theme) => ({
-                        whiteSpace: "nowrap",
-                        color: currenColor(theme, date),
-                      })}
-                    >
-                      {task[language]}
-                    </TableCell>
+                      <TableCell>{roomNumber}</TableCell>
 
-                    {authentificated && user?.emailVerified && (
-                      <TableCell
-                        align="center"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                        }}
-                      >
-                        <Checkbox
-                          disabled={isLoading}
-                          checked={checked.isDone}
-                          onChange={(e) => handleChecked(e, _id, checked)}
-                          color="success"
-                        />
-                        {checked?.isDone && (
-                          <Typography variant="caption" whiteSpace="nowrap">
-                            {checked?.checker?.displayName}
-                          </Typography>
-                        )}
-                      </TableCell>
-                    )}
+                      <TableCell>{date}</TableCell>
+                      <TableCell>{task[language]}</TableCell>
 
-                    {permissions && (
-                      <>
-                        <TableCell align="center">
-                          <IconButton
-                            color="secondary"
-                            onClick={() => {
-                              setValueSelect(task.id);
-                              setIsChooseALesson(item[index]);
-                              setIsEdit({ edit: true, data: item });
-                              handleAddALesson();
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
+                      {authentificated && user?.emailVerified && (
+                        <TableCell
+                          align="center"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          <Checkbox
+                            disabled={isLoading}
+                            checked={checked.isDone}
+                            onChange={(e) => handleChecked(e, _id, checked)}
+                            color="success"
+                          />
+                          {checked?.isDone && (
+                            <Typography variant="caption" whiteSpace="nowrap">
+                              {permissions
+                                ? "Admin"
+                                : checked?.checker?.displayName}
+                            </Typography>
+                          )}
                         </TableCell>
-                        <TableCell align="center">
-                          <IconButton
-                            color="error"
-                            onClick={() => {
-                              setIsDeleteModal(true);
-                              setIsChooseALesson(item[index]);
-                              setIsEdit({ edit: true, data: item });
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </TableCell>
-                      </>
-                    )}
-                  </TableRow>
-                )
+                      )}
+
+                      {permissions && (
+                        <>
+                          <TableCell align="center">
+                            <IconButton
+                              color="secondary"
+                              onClick={() => {
+                                setValueSelect(task.id);
+                                setIsChooseALesson(item[index]);
+                                setIsEdit({ edit: true, data: item });
+                                handleAddALesson();
+                              }}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </TableCell>
+                          <TableCell align="center">
+                            <IconButton
+                              color="error"
+                              onClick={() => {
+                                setIsDeleteModal(true);
+                                setIsChooseALesson(item[index]);
+                                setIsEdit({ edit: true, data: item });
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </>
+                      )}
+                    </TableRow>
+                  );
+                }
               )}
           </TableBody>
         </Table>
