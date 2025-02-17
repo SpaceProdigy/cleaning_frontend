@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation.js";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import { selectLessonsLoading } from "../../redux/cleaningSlice.js";
 
 SelectMonth.propTypes = {
   nameCollection: PropTypes.string.isRequired,
@@ -18,11 +19,12 @@ SelectMonth.propTypes = {
 
 export default function SelectMonth({ nameCollection, locationMonth }) {
   const language = useSelector(selectLanguage);
+  const isLoading = useSelector(selectLessonsLoading);
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ maxWidth: 400, width: "100%" }}>
-      <FormControl fullWidth>
+    <Box sx={{ maxWidth: 400, width: "100%", p: "10px" }}>
+      <FormControl fullWidth disabled={isLoading}>
         <InputLabel>
           {language === "en" ? "Select a month" : "Виберіть місяць"}
         </InputLabel>

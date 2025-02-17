@@ -14,6 +14,7 @@ import {
 import { collectionDb } from "../locales/collectionDb";
 
 import axios from "axios";
+import { notifyMessages } from "../components/AlertComponent/notifyMessages";
 
 const ENV = import.meta.env;
 
@@ -38,14 +39,112 @@ const someThingWrongAlarm = () => {
 
 export const getScheduleThunk = createAsyncThunk(
   "cleaning/get",
-  async ({ nameCollection, locationMonth }, { rejectWithValue }) => {
+  async (
+    { nameCollection, locationMonth, cancelToken, setTotalPages, page, limit },
+    { rejectWithValue }
+  ) => {
     try {
       const { data } = await axios.get(
-        `${BASE_URL}cleaning/${nameCollection}/${locationMonth}`
+        `${BASE_URL}cleaning/${nameCollection}/${locationMonth}`,
+        {
+          cancelToken: cancelToken.token,
+          params: {
+            page,
+            limit,
+          },
+        }
       );
+
+      setTotalPages(data.totalPages);
+
+      return data.data;
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log("Запрос отменён", error.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getScheduleByRoomThunk = createAsyncThunk(
+  "cleaning/getByRoom",
+  async (
+    {
+      nameCollection,
+      roomNumber,
+      cancelToken,
+      isTidied,
+      page,
+      limit,
+      setTotalPages,
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data } = await axios.get(
+        `${BASE_URL}cleaning/${nameCollection}/room/${roomNumber}/${isTidied}`,
+        {
+          cancelToken: cancelToken.token,
+          params: {
+            page,
+            limit,
+          },
+        }
+      );
+      setTotalPages(data.totalPages);
+
+      return data.data;
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log("Запрос отменён", error.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const sendRemindThunk = createAsyncThunk(
+  "cleaning/sendRemind",
+  async (
+    { nameCollection, cancelToken, language, setAlreadySent },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data } = await axios.post(
+        `${BASE_URL}telegram/${nameCollection}/`,
+        {
+          cancelToken: cancelToken.token,
+          params: {},
+        }
+      );
+
+      if (data.alreadySent) {
+        setAlreadySent(data.alreadySent);
+        notify(
+          "warning",
+          notifyMessages({
+            language,
+            notifyType: "alreadySentToGroup",
+            nameCollection,
+          })
+        );
+      } else {
+        notify(
+          "success",
+          notifyMessages({
+            language,
+            notifyType: "sentToGroup",
+            nameCollection,
+          })
+        );
+      }
 
       return data;
     } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log("Запрос отменён", error.message);
+      }
       return rejectWithValue(error.message);
     }
   }
@@ -53,7 +152,7 @@ export const getScheduleThunk = createAsyncThunk(
 
 export const addScheduleThunk = createAsyncThunk(
   "cleaning/add",
-  async ({ nameCollection, data }, { rejectWithValue }) => {
+  async ({ nameCollection, data, language }, { rejectWithValue }) => {
     try {
       const respond = await axios.post(
         `${BASE_URL}cleaning/${nameCollection}`,
@@ -109,7 +208,7 @@ export const getScheduleByIdThunk = createAsyncThunk(
 
 export const deleteScheduleByIdThunk = createAsyncThunk(
   "cleaning/deleteById",
-  async ({ nameCollection, id }, { rejectWithValue }) => {
+  async ({ nameCollection, id, language }, { rejectWithValue }) => {
     try {
       await axios.delete(`${BASE_URL}cleaning/${nameCollection}/${id}`);
       notify(
@@ -129,7 +228,10 @@ export const deleteScheduleByIdThunk = createAsyncThunk(
 
 export const updateScheduleByIdThunk = createAsyncThunk(
   "cleaning/updateById",
-  async ({ nameCollection, id, updateValue }, { rejectWithValue }) => {
+  async (
+    { nameCollection, id, updateValue, language },
+    { rejectWithValue }
+  ) => {
     try {
       const { data } = await axios.patch(
         `${BASE_URL}cleaning/${nameCollection}/${id}`,

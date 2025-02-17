@@ -84,6 +84,7 @@ export default function ModalDelete({
                   deleteScheduleByIdThunk({
                     nameCollection,
                     id: isChooseALesson._id,
+                    language,
                   })
                 );
                 setIsChooseALesson(null);

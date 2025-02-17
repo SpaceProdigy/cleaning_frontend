@@ -17,10 +17,10 @@ import {
   IconButton,
   InputLabel,
   MenuItem,
+  Pagination,
   Select,
   Typography,
 } from "@mui/material";
-
 import { useDispatch, useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
@@ -31,6 +31,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import { updateScheduleByIdThunk } from "../../redux/cleaningOperations";
 import { selectAuthentificated, selectAuthUser } from "../../redux/authSlice";
+import RowRadioButtonsGroup from "./RadioGroup/RadioGroup";
 
 BasicTable.propTypes = {
   isDeleteModal: PropTypes.bool,
@@ -46,6 +47,12 @@ BasicTable.propTypes = {
     PropTypes.object,
     PropTypes.oneOf([null]),
   ]),
+  page: PropTypes.number.isRequired,
+  setPage: PropTypes.func.isRequired,
+  limit: PropTypes.number.isRequired,
+  setLitit: PropTypes.func.isRequired,
+  totalPages: PropTypes.number.isRequired,
+  setTotalPages: PropTypes.func.isRequired,
 };
 
 export default function BasicTable({
@@ -56,20 +63,31 @@ export default function BasicTable({
   setIsChooseALesson,
   setValueSelect,
   nameCollection,
+  page,
+  setPage,
+  // setLitit,
+  // limit,
+  totalPages,
 }) {
   const language = useSelector(selectLanguage);
   const schedulesArr = useSelector(selectSchedulesArr);
   const isLoading = useSelector(selectLessonsLoading);
   const authentificated = useSelector(selectAuthentificated);
   const user = useSelector(selectAuthUser) || {};
-
-  // const user = useSelector(selectAuthUser);
-  // console.log(roomNumber);
-  // console.log(authentificated);
+  const [filterList, setFilterList] = useState("Hide past dates");
 
   const dicpatch = useDispatch();
 
   const [room, setRoom] = useState("");
+
+  const handlePaginationChange = (_, n) => {
+    setPage(n);
+  };
+
+  // const handleLimitChange = (e) => {
+  //   setPage(1);
+  //   setLitit(e.target.value);
+  // };
 
   const handleChecked = (e, id, checked) => {
     if (checked?.checker) {
@@ -79,6 +97,7 @@ export default function BasicTable({
     }
     dicpatch(
       updateScheduleByIdThunk({
+        language,
         nameCollection,
         id,
         updateValue: {
@@ -95,7 +114,6 @@ export default function BasicTable({
   };
 
   const handleChange = (event) => {
-    console.log(event.target.value);
     setRoom(event.target.value);
   };
 
@@ -135,26 +153,66 @@ export default function BasicTable({
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
 
-    return dateA - dateB;
+    // Сначала сортируем по дате
+    if (dateA - dateB !== 0) {
+      return dateA - dateB;
+    }
+
+    // Если даты одинаковые, сортируем по номеру комнаты
+    const roomA = parseInt(a.roomNumber, 10);
+    const roomB = parseInt(b.roomNumber, 10);
+
+    return roomA - roomB;
   });
 
   const uniqRoomNumbers = new Set();
 
   sortArr?.map(({ roomNumber }) => uniqRoomNumbers.add(roomNumber));
 
+  const soertedUniqRoomNumbers = [...uniqRoomNumbers].sort((a, b) => a - b);
+
   const currentArr = () => {
     if (room) {
       return sortArr?.filter(({ roomNumber }) => roomNumber === room);
-    } else {
-      return sortArr;
     }
+    if (filterList === "Hide past dates") {
+      return sortArr?.filter(
+        ({ date }) =>
+          dayjs(date).isAfter(dayjs()) || dayjs(date).isSame(dayjs(), "day")
+      );
+    }
+    if (filterList === "Current week") {
+      return sortArr?.filter(({ date }) => {
+        const day = dayjs(date);
+        const startOfWeek = dayjs().startOf("week");
+        const endOfWeek = dayjs().endOf("week");
+
+        return day.isAfter(startOfWeek) && day.isBefore(endOfWeek);
+      });
+    }
+
+    return sortArr;
   };
 
   return (
     <>
       {uniqRoomNumbers?.size > 0 && (
-        <Paper elevation={2} sx={{ width: "100%", maxWidth: "400px" }}>
-          <FormControl fullWidth sx={{ maxWidth: "400px" }}>
+        <Paper
+          elevation={2}
+          sx={{
+            width: "100%",
+            maxWidth: "400px",
+            display: "flex",
+
+            gap: "10px",
+            p: "10px",
+          }}
+        >
+          <FormControl
+            fullWidth
+            sx={{ maxWidth: "400px" }}
+            disabled={isLoading}
+          >
             <InputLabel>{language === "en" ? "Room" : "Кімната"}</InputLabel>
             <Select
               value={room}
@@ -164,15 +222,46 @@ export default function BasicTable({
               <MenuItem value={""}>
                 {language === "en" ? "Reset" : "Скинути"}
               </MenuItem>
-              {[...uniqRoomNumbers]?.map((roomNumber, index) => (
+              {soertedUniqRoomNumbers?.map((roomNumber, index) => (
                 <MenuItem key={index} value={roomNumber}>
-                  {roomNumber}
+                  {language === "en" ? " Room" : " Кімната"} {roomNumber}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          {/* <FormControl
+            fullWidth
+            sx={{ maxWidth: "400px" }}
+            disabled={isLoading}
+          >
+            <InputLabel>
+              {language === "en" ? "Items per page" : "Елементів на сторінці"}
+            </InputLabel>
+            <Select
+              value={limit}
+              label={
+                language === "en" ? "Items per page" : "Елементів на сторінці"
+              }
+              onChange={handleLimitChange}
+            >
+              {[20, 50, 100].map((num) => (
+                <MenuItem key={num} value={num}>
+                  {language === "en" ? "Items" : "Елементів"}
+                  {` ${num}`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl> */}
         </Paper>
       )}
+
+      <RowRadioButtonsGroup
+        filterList={filterList}
+        setFilterList={setFilterList}
+        isLoading={isLoading}
+        language={language}
+      />
 
       <TableContainer
         elevation={2}
@@ -196,6 +285,9 @@ export default function BasicTable({
                 <>
                   <TableCell align="center">
                     {language === "en" ? "Done" : "Готово"}
+                  </TableCell>
+                  <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
+                    {language === "en" ? "Confirmed by" : "Підтверджено "}
                   </TableCell>
                   <TableCell align="center">
                     {language === "en" ? "Edit" : "Редагувати"}
@@ -226,34 +318,39 @@ export default function BasicTable({
                       <TableCell>{task[language]}</TableCell>
 
                       {authentificated && user?.emailVerified && (
-                        <TableCell
-                          align="center"
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
-                          <Checkbox
-                            disabled={isLoading}
-                            checked={checked.isDone}
-                            onChange={(e) => handleChecked(e, _id, checked)}
-                            color="success"
-                          />
-                          {checked?.isDone && (
-                            <Typography variant="caption" whiteSpace="nowrap">
-                              {permissions
-                                ? "Admin"
-                                : checked?.checker?.displayName}
-                            </Typography>
-                          )}
-                        </TableCell>
+                        <>
+                          <TableCell
+                            align="center"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                            }}
+                          >
+                            <Checkbox
+                              disabled={isLoading}
+                              checked={checked.isDone}
+                              onChange={(e) => handleChecked(e, _id, checked)}
+                              color="success"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {checked?.isDone && (
+                              <Typography variant="caption" whiteSpace="nowrap">
+                                {permissions
+                                  ? "Admin"
+                                  : checked?.checker?.displayName}
+                              </Typography>
+                            )}
+                          </TableCell>
+                        </>
                       )}
 
                       {permissions && (
                         <>
                           <TableCell align="center">
                             <IconButton
+                              disabled={isLoading}
                               color="secondary"
                               onClick={() => {
                                 setValueSelect(task.id);
@@ -267,6 +364,7 @@ export default function BasicTable({
                           </TableCell>
                           <TableCell align="center">
                             <IconButton
+                              disabled={isLoading}
                               color="error"
                               onClick={() => {
                                 setIsDeleteModal(true);
@@ -285,6 +383,27 @@ export default function BasicTable({
               )}
           </TableBody>
         </Table>
+
+        {totalPages > 1 && (
+          <Box
+            width="100%"
+            height="50px"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Pagination
+              count={totalPages}
+              variant="outlined"
+              color="primary"
+              disabled={isLoading}
+              page={page}
+              boundaryCount={0}
+              onChange={handlePaginationChange}
+            />
+          </Box>
+        )}
+
         {isLoading && (
           <Box
             width="100%"

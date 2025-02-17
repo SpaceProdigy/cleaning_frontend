@@ -23,6 +23,9 @@ import ModalAddLesson from "./ModalEddLesson/ModalAddLesson";
 import { useLocation, useNavigate } from "react-router-dom";
 import { selectAuthUser } from "../../redux/authSlice";
 import Rulse from "../../components/Rules/Rulse";
+import axios from "axios";
+import RemindButton from "../../components/RemindButton/RemindButton";
+import { selectLanguage } from "../../redux/localOperation";
 
 const Schedule = ({
   permissions,
@@ -34,6 +37,8 @@ const Schedule = ({
   cleaningRules,
 }) => {
   const isLoading = useSelector(selectLessonsLoading);
+  const language = useSelector(selectLanguage);
+
   const { displayName = "No name", uid = "No ID" } =
     useSelector(selectAuthUser) || {};
 
@@ -41,6 +46,7 @@ const Schedule = ({
   const screenMinWidth600 = useMediaQuery("(min-width:600px)");
   const navigate = useNavigate();
   const location = useLocation();
+
   const dispatch = useDispatch();
   const locationMonth = location.pathname.split("/")[2];
 
@@ -57,6 +63,9 @@ const Schedule = ({
 
   const [selectError, setSelectError] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLitit] = useState(100);
+  const [totalPages, setTotalPages] = useState(1);
 
   // console.log(selectMonth);
   // console.log("ROOM", valueRoom);
@@ -69,6 +78,8 @@ const Schedule = ({
   // console.log("SELECT", valueSelect);
 
   useEffect(() => {
+    const cancelTokenSource = axios.CancelToken.source();
+
     const newUrl = `/${nameCollection}/${locationMonth}`;
 
     navigate(newUrl, { replace: true });
@@ -77,9 +88,20 @@ const Schedule = ({
       getScheduleThunk({
         nameCollection,
         locationMonth,
+        cancelToken: cancelTokenSource,
+        setTotalPages,
+        page,
+        limit,
       })
     );
-  }, [dispatch, locationMonth, nameCollection, navigate]);
+
+    // Очистка при размонтировании компонента (отмена запроса)
+    return () => {
+      cancelTokenSource.cancel(
+        "Компонент был размонтирован или маршрут изменен"
+      );
+    };
+  }, [dispatch, limit, locationMonth, nameCollection, navigate, page]);
 
   const handleAddALesson = () => {
     return setOpen(true);
@@ -95,6 +117,7 @@ const Schedule = ({
     if (isEdit.edit) {
       dispatch(
         updateScheduleByIdThunk({
+          language,
           nameCollection,
           id: isChooseALesson._id,
           updateValue: {
@@ -114,6 +137,7 @@ const Schedule = ({
 
     dispatch(
       addScheduleThunk({
+        language,
         nameCollection,
         data: {
           task: taskList[valueSelect - 1],
@@ -200,6 +224,12 @@ const Schedule = ({
               </Paper>
 
               <BasicTable
+                page={page}
+                setPage={setPage}
+                limit={limit}
+                setLitit={setLitit}
+                totalPages={totalPages}
+                setTotalPages={setTotalPages}
                 nameCollection={nameCollection}
                 permissions={permissions}
                 isDeleteModal={isDeleteModal}
@@ -210,10 +240,14 @@ const Schedule = ({
                 setValueSelect={setValueSelect}
               />
 
-              <Rulse
-                cleaningRules={cleaningRules}
-                nameCollection={nameCollection}
-              />
+              <RemindButton nameCollection={nameCollection} />
+
+              {cleaningRules && (
+                <Rulse
+                  cleaningRules={cleaningRules}
+                  nameCollection={nameCollection}
+                />
+              )}
             </Box>
           </Paper>
         </Box>

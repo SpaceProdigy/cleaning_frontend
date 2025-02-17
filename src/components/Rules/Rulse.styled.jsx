@@ -1,5 +1,9 @@
 import { Link, Paper, styled, Typography } from "@mui/material";
 
+export const AccordionWrapper = styled(Paper)`
+  width: 100%;
+`;
+
 export const RulesWrapper = styled(Paper)`
   :first-of-type {
     padding: 10px 0;

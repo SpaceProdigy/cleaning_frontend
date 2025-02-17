@@ -9,6 +9,7 @@ import {
   deleteFileByNameThunk,
   addCommentByIdThunk,
   deleteCommentByIdThunk,
+  getScheduleByRoomThunk,
 } from "./cleaningOperations";
 
 const lessonsJillState = {
@@ -16,6 +17,7 @@ const lessonsJillState = {
   error: null,
   cleaningArr: [],
   lessonById: {},
+  missedCleaningArr: [],
 };
 
 const handlePending = (state) => {
@@ -39,6 +41,14 @@ const cleaningSlice = createSlice({
         state.isLoading = false;
         state.error = null;
         state.cleaningArr = action.payload;
+      })
+
+      .addCase(getScheduleByRoomThunk.pending, handlePending)
+      .addCase(getScheduleByRoomThunk.rejected, handleRejected)
+      .addCase(getScheduleByRoomThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        state.missedCleaningArr = action.payload;
       })
 
       .addCase(getScheduleByIdThunk.pending, handlePending)
@@ -134,5 +144,7 @@ export const cleaningReducer = cleaningSlice.reducer;
 
 export const selectLessonsLoading = (state) => state.cleaning.isLoading;
 export const selectSchedulesArr = (state) => state.cleaning.cleaningArr;
+export const selectMissedCleaningArr = (state) =>
+  state.cleaning.missedCleaningArr;
 export const selectLessonsById = (state) => state.cleaning.lessonById;
 export const selectLessonsJillError = (state) => state.cleaning.error;

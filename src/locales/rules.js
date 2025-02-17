@@ -1,5 +1,3 @@
-import TelegramIcon from "@mui/icons-material/Telegram";
-
 export const rulesBlueCorridor = {
   en: `➡️ Each room is cleaned according to the established schedule.
 If it is not possible to clean on this particular day, you can do it a day earlier or later, or agree with your neighbor.

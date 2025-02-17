@@ -20,7 +20,10 @@ const errors = async (lang, errorType) => {
 
   const selectedLanguage = errorMap[lang] || errorMap.en;
 
-  const errorMessage = selectedLanguage[errorType] || "Unknown error!";
+  const errorMessage =
+    selectedLanguage[errorType] || lang === "en"
+      ? "Unknown error!"
+      : "Невідома помилка!";
 
   return new Promise((resolve) => resolve(errorMessage));
 };

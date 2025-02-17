@@ -65,6 +65,7 @@ export default function CleaningSchedule() {
             permissions.includes("admin") ||
             permissions.includes(schedule)
           }
+          cleaningRules={rulesFnc(schedule, language)}
         />
       )}
     </>
