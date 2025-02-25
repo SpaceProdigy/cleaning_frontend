@@ -128,7 +128,6 @@ export const ModalCalendar = ({
                   <MenuItem
                     disabled={isLoading}
                     onClick={() => {
-                      setValueSelect(1);
                       handleAddALesson();
                     }}
                   >

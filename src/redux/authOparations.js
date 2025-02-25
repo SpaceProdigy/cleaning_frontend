@@ -6,15 +6,21 @@ import {
   signOut,
   signInWithEmailAndPassword,
   sendEmailVerification,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  deleteUser,
 } from "firebase/auth";
 import { notify } from "../components/AlertComponent/notify";
 import {
+  deleteObject,
   getDownloadURL,
   getStorage,
+  listAll,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
 import axios from "axios";
+import { storage } from "../../firebaseConfig";
 
 const auth = getAuth();
 
@@ -114,7 +120,7 @@ export const userUpdateThunk = createAsyncThunk(
 
 export const verifiEmailThunk = createAsyncThunk(
   "auth/verifiEmail",
-  async ({ setIsActive }, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       await sendEmailVerification(auth.currentUser);
 
@@ -126,8 +132,6 @@ export const verifiEmailThunk = createAsyncThunk(
           ? "Check your email."
           : "Перевірте вашу електронну пошту."
       );
-
-      setIsActive(true);
     } catch (error) {
       consolError(error);
       return rejectWithValue(error.message);
@@ -416,6 +420,36 @@ export const updatePermissionsThunk = createAsyncThunk(
     } catch (error) {
       console.log(error);
       someThingWrongAlarm();
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteAccountThunk = createAsyncThunk(
+  "auth/deleteAccount",
+  async ({ email, password, userId }, { rejectWithValue }) => {
+    try {
+      const user = auth.currentUser;
+
+      if (!user) throw new Error("Usser not found");
+
+      // Firebase требует недавней авторизации перед удалением
+      const credential = EmailAuthProvider.credential(email, password);
+      await reauthenticateWithCredential(user, credential);
+
+      const folderRef = ref(storage, `users/${userId}`);
+      const fileList = await listAll(folderRef);
+
+      // Удаляем каждый файл поочередно
+      for (const item of fileList.items) {
+        await deleteObject(item); // Удаляем файл
+        console.log(`Файл ${item.name} удален!`);
+      }
+
+      await deleteUser(user); // Удаляем аккаунт
+
+      return true; // Успешное удаление
+    } catch (error) {
       return rejectWithValue(error.message);
     }
   }

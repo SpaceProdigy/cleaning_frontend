@@ -10,6 +10,7 @@ import {
   userUpdateRoomThunk,
   addAdminThunk,
   registerThunk,
+  deleteAccountThunk,
 } from "./authOparations";
 
 const authState = {
@@ -45,6 +46,11 @@ const handleRejected = (state, action) => {
 const authSlice = createSlice({
   name: "auth",
   initialState: authState,
+  reducers: {
+    editVerifyEmail: (state) => {
+      state.userData = { ...state.userData, emailVerified: true };
+    },
+  },
   extraReducers: (builder) =>
     builder
       // ----- REGISTER USER -----
@@ -129,6 +135,17 @@ const authSlice = createSlice({
           ({ userId }) => userId !== action.payload
         );
         state.admins = updatedArr;
+      })
+
+      //----- DELETE ACCOUNT -----
+      .addCase(deleteAccountThunk.pending, handlePending)
+      .addCase(deleteAccountThunk.rejected, handleRejected)
+      .addCase(deleteAccountThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        if (action.payload) {
+          resetAuthState(state);
+        }
       }),
 });
 
@@ -137,6 +154,7 @@ const persistConfiAuth = {
   storage,
   whitelist: ["token"],
 };
+export const { editVerifyEmail } = authSlice.actions;
 
 export const authReducer = persistReducer(persistConfiAuth, authSlice.reducer);
 

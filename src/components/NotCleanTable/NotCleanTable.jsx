@@ -10,6 +10,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
+  resetCleaningData,
   selectLessonsLoading,
   selectMissedCleaningArr,
   selectSchedulesArr,
@@ -51,6 +52,7 @@ export default function NotCleanTable({ nameCollection }) {
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(null);
 
   const handlePaginationChange = (_, n) => {
     setPage(n);
@@ -105,6 +107,7 @@ export default function NotCleanTable({ nameCollection }) {
         page,
         limit,
         setTotalPages,
+        setTotalItems,
       })
     );
     setSelectedRoom(room);
@@ -163,8 +166,9 @@ export default function NotCleanTable({ nameCollection }) {
       if (cancelTokenSource) {
         cancelTokenSource.cancel("Компонент был размонтирован.");
       }
+      dispatch(resetCleaningData());
     };
-  }, [cancelTokenSource]);
+  }, [cancelTokenSource, dispatch]);
 
   return (
     <Wrapper>
@@ -224,10 +228,18 @@ export default function NotCleanTable({ nameCollection }) {
               {`${selectedRoom}`}
             </Typography>
           </Box>
-          {missedCleaningArr.length === 0 && (
+          {missedCleaningArr.length === 0 ? (
             <Box>
               <Typography variant="caption" textAlign="center">
                 {language === "en" ? "No data" : "Немає даних"}
+              </Typography>
+            </Box>
+          ) : (
+            <Box>
+              <Typography variant="caption" textAlign="center">
+                {language === "en"
+                  ? `Found ${totalItems} items`
+                  : `Знайдено ${totalItems} елементів`}
               </Typography>
             </Box>
           )}

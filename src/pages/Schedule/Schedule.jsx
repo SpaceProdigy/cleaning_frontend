@@ -46,7 +46,6 @@ const Schedule = ({
   const screenMinWidth600 = useMediaQuery("(min-width:600px)");
   const navigate = useNavigate();
   const location = useLocation();
-
   const dispatch = useDispatch();
   const locationMonth = location.pathname.split("/")[2];
 
@@ -129,7 +128,7 @@ const Schedule = ({
       );
       if (!isLoading) {
         setOpen(false);
-        setValueSelect(1);
+
         setIsChooseALesson(null);
       }
       return;
@@ -239,8 +238,7 @@ const Schedule = ({
                 setIsChooseALesson={setIsChooseALesson}
                 setValueSelect={setValueSelect}
               />
-
-              <RemindButton nameCollection={nameCollection} />
+              {permissions && <RemindButton nameCollection={nameCollection} />}
 
               {cleaningRules && (
                 <Rulse

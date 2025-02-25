@@ -12,11 +12,10 @@ import {
   getScheduleByRoomThunk,
 } from "./cleaningOperations";
 
-const lessonsJillState = {
+const scheduleState = {
   isLoading: false,
   error: null,
   cleaningArr: [],
-  lessonById: {},
   missedCleaningArr: [],
 };
 
@@ -31,8 +30,16 @@ const handleRejected = (state, action) => {
 };
 
 const cleaningSlice = createSlice({
-  name: "lessons",
-  initialState: lessonsJillState,
+  name: "schedule",
+  initialState: scheduleState,
+  reducers: {
+    resetCleaningData: (state) => {
+      state.cleaningArr = [];
+      state.missedCleaningArr = [];
+      state.lessonById = {};
+      state.error = null;
+    },
+  },
   extraReducers: (builder) =>
     builder
       .addCase(getScheduleThunk.pending, handlePending)
@@ -140,6 +147,7 @@ const cleaningSlice = createSlice({
       }),
 });
 
+export const { resetCleaningData } = cleaningSlice.actions;
 export const cleaningReducer = cleaningSlice.reducer;
 
 export const selectLessonsLoading = (state) => state.cleaning.isLoading;

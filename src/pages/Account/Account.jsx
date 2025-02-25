@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
+  editVerifyEmail,
   selectAuthLoading,
   selectAuthPermissions,
   selectAuthUser,
@@ -17,6 +18,11 @@ import Admins from "./Admins/Admins";
 import RoomInput from "./RoomInput/RoomInput";
 import GppMaybeIcon from "@mui/icons-material/GppMaybe";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import DeleteAccountButton from "./DeleteAccountButton/DeleteAccountButton";
+import { auth } from "../../../firebaseConfig";
+import { notify } from "../../components/AlertComponent/notify";
+
+const TIMER_KEY = "requestCooldown";
 
 export default function Account() {
   const user = useSelector(selectAuthUser);
@@ -32,39 +38,70 @@ export default function Account() {
 
   const dispatch = useDispatch();
 
-  const [timeLeft, setTimeLeft] = useState(() => {
-    const savedTime = localStorage.getItem("timeLeft");
-    return savedTime ? JSON.parse(savedTime) : 60;
-  });
-
-  const [isActive, setIsActive] = useState(() => {
-    const savedActiveState = localStorage.getItem("isActive");
-    return savedActiveState ? JSON.parse(savedActiveState) : false;
-  });
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
-    if (!user?.emailVerified) {
-      let timer;
-      if (isActive && timeLeft > 0) {
-        timer = setInterval(() => {
-          setTimeLeft((prevTime) => prevTime - 1);
+    const cooldown = localStorage.getItem(TIMER_KEY);
+
+    if (cooldown) {
+      const remaining = Math.max(0, parseInt(cooldown, 10) - Date.now());
+
+      if (remaining > 0) {
+        setTimeLeft(Math.ceil(remaining / 1000));
+        const interval = setInterval(() => {
+          setTimeLeft((prev) => Math.max(0, prev - 1));
         }, 1000);
-      } else if (timeLeft === 0) {
-        clearInterval(timer);
-        setIsActive(false);
+        return () => clearInterval(interval);
       }
-
-      localStorage.setItem("timeLeft", JSON.stringify(timeLeft));
-      localStorage.setItem("isActive", JSON.stringify(isActive));
-
-      return () => clearInterval(timer);
     }
-  }, [isActive, timeLeft, user?.emailVerified]);
+  }, []);
+
+  const handleChekVerifiEmail = async () => {
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      try {
+        await currentUser.reload();
+
+        if (currentUser.emailVerified) {
+          dispatch(editVerifyEmail());
+          notify(
+            "success",
+            language === "en"
+              ? "Email is verified!"
+              : "Електронна пошта перевірена!"
+          );
+        } else {
+          notify(
+            "warning",
+            language === "en"
+              ? "Email is not verified!"
+              : "Електронна пошта не перевірена!"
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   const handleVerifiEmail = () => {
-    dispatch(verifiEmailThunk({ setIsActive }));
+    dispatch(verifiEmailThunk());
+    const cooldownTime = Date.now() + 60 * 1000; // 1 минута
+    localStorage.setItem(TIMER_KEY, cooldownTime);
     setTimeLeft(60);
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
+
   const hendleLogOut = () => dispatch(logOutThunk());
   return (
     <MainWrapper>
@@ -90,11 +127,29 @@ export default function Account() {
 
         {!user?.emailVerified && (
           <>
-            <Typography variant="caption" textAlign="center">
-              {language === "en"
-                ? "Verify your email to have more opportunities"
-                : "Веріфікуй свій емейл щоб мати більше можливостей"}
-            </Typography>
+            <>
+              <Typography variant="caption" textAlign="center">
+                {language === "en"
+                  ? "Verify your email to have more opportunities"
+                  : "Веріфікуй свій емейл щоб мати більше можливостей"}
+              </Typography>
+              <Typography variant="caption" textAlign="center">
+                {language === "en"
+                  ? "If you have already verified, refresh the page or click the button"
+                  : "Якщо ви вже верифікувалися, оновіть сторінку або натисніть кнопку"}
+              </Typography>
+              <Button
+                type="button"
+                size="small"
+                onClick={handleChekVerifiEmail}
+                disabled={isLoading}
+              >
+                {language === "en"
+                  ? "verification check"
+                  : "перевірка верифікації"}
+              </Button>
+            </>
+
             {timeLeft > 0 ? (
               <Typography textAlign="center">{timeLeft}</Typography>
             ) : (
@@ -102,7 +157,7 @@ export default function Account() {
                 type="button"
                 size="small"
                 onClick={handleVerifiEmail}
-                disabled={isActive || isLoading}
+                disabled={isLoading}
               >
                 {language === "en" ? "to verify" : "верифікувати"}
               </Button>
@@ -167,6 +222,12 @@ export default function Account() {
       <Button type="button" variant="contained" onClick={hendleLogOut}>
         {language === "en" ? "Log out" : "Вийти"}
       </Button>
+      <DeleteAccountButton
+        language={language}
+        user={user}
+        isLoading={isLoading}
+        dispatch={dispatch}
+      />
     </MainWrapper>
   );
 }

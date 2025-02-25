@@ -78,6 +78,7 @@ export const getScheduleByRoomThunk = createAsyncThunk(
       page,
       limit,
       setTotalPages,
+      setTotalItems,
     },
     { rejectWithValue }
   ) => {
@@ -92,6 +93,8 @@ export const getScheduleByRoomThunk = createAsyncThunk(
           },
         }
       );
+
+      setTotalItems(data.total);
       setTotalPages(data.totalPages);
 
       return data.data;

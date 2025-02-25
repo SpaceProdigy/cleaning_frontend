@@ -11,14 +11,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 import {
   Box,
+  Button,
   Checkbox,
   CircularProgress,
-  FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
   Pagination,
-  Select,
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,10 +25,11 @@ import {
   selectSchedulesArr,
 } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { updateScheduleByIdThunk } from "../../redux/cleaningOperations";
-import { selectAuthentificated, selectAuthUser } from "../../redux/authSlice";
+import { selectAuthUser } from "../../redux/authSlice";
 import RowRadioButtonsGroup from "./RadioGroup/RadioGroup";
+import { Pdf } from "../Pdf/Pdf";
 
 BasicTable.propTypes = {
   isDeleteModal: PropTypes.bool,
@@ -72,22 +70,37 @@ export default function BasicTable({
   const language = useSelector(selectLanguage);
   const schedulesArr = useSelector(selectSchedulesArr);
   const isLoading = useSelector(selectLessonsLoading);
-  const authentificated = useSelector(selectAuthentificated);
+  // const authentificated = useSelector(selectAuthentificated);
   const user = useSelector(selectAuthUser) || {};
   const [filterList, setFilterList] = useState("Hide past dates");
+  const [isFilterTask, setIsFilterTask] = useState("");
+  const [uniqTaskList, setUniqTaskList] = useState({});
+  const [uniqRoomList, setUniqRoomList] = useState([]);
+
+  const uniqTasks = useMemo(() => {
+    const uniqueTasksEn = new Set();
+    const uniqueTasksUa = new Set();
+    schedulesArr?.forEach(({ task }) => uniqueTasksEn.add(task.en));
+    schedulesArr?.forEach(({ task }) => uniqueTasksUa.add(task.ua));
+    return { en: [...uniqueTasksEn], ua: [...uniqueTasksUa] };
+  }, [schedulesArr]);
+
+  const uniqRooms = useMemo(() => {
+    const uniqRoomNumbers = new Set();
+    schedulesArr?.map(({ roomNumber }) => uniqRoomNumbers.add(roomNumber));
+    const soertedUniqRoomNumbers = [...uniqRoomNumbers].sort((a, b) => a - b);
+
+    return soertedUniqRoomNumbers;
+  }, [schedulesArr]);
 
   const dicpatch = useDispatch();
 
   const [room, setRoom] = useState("");
+  const [isDoPdf, setIsDoPdf] = useState(false);
 
   const handlePaginationChange = (_, n) => {
     setPage(n);
   };
-
-  // const handleLimitChange = (e) => {
-  //   setPage(1);
-  //   setLitit(e.target.value);
-  // };
 
   const handleChecked = (e, id, checked) => {
     if (checked?.checker) {
@@ -111,10 +124,6 @@ export default function BasicTable({
         },
       })
     );
-  };
-
-  const handleChange = (event) => {
-    setRoom(event.target.value);
   };
 
   const currenColor = (theme, date, isDone) => {
@@ -153,36 +162,43 @@ export default function BasicTable({
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
 
-    // Сначала сортируем по дате
+    // Сортируем по дате (сначала идут более ранние даты)
     if (dateA - dateB !== 0) {
       return dateA - dateB;
     }
 
-    // Если даты одинаковые, сортируем по номеру комнаты
+    // Если даты одинаковые, сортируем по названию таска (по алфавиту)
+    if (a.task.en.localeCompare(b.task.en) !== 0) {
+      return a.task.en.localeCompare(b.task.en);
+    }
+
+    // Если и таски одинаковые, сортируем по номеру комнаты
     const roomA = parseInt(a.roomNumber, 10);
     const roomB = parseInt(b.roomNumber, 10);
 
     return roomA - roomB;
   });
 
-  const uniqRoomNumbers = new Set();
-
-  sortArr?.map(({ roomNumber }) => uniqRoomNumbers.add(roomNumber));
-
-  const soertedUniqRoomNumbers = [...uniqRoomNumbers].sort((a, b) => a - b);
-
   const currentArr = () => {
-    if (room) {
-      return sortArr?.filter(({ roomNumber }) => roomNumber === room);
+    let currentArr = sortArr;
+    if (isFilterTask) {
+      currentArr = sortArr?.filter(({ task }) => task.en === isFilterTask);
     }
+
+    if (room) {
+      currentArr = currentArr?.filter(
+        ({ roomNumber }) => String(roomNumber) === room
+      );
+    }
+
     if (filterList === "Hide past dates") {
-      return sortArr?.filter(
+      currentArr = currentArr?.filter(
         ({ date }) =>
           dayjs(date).isAfter(dayjs()) || dayjs(date).isSame(dayjs(), "day")
       );
     }
     if (filterList === "Current week") {
-      return sortArr?.filter(({ date }) => {
+      currentArr = currentArr?.filter(({ date }) => {
         const day = dayjs(date);
         const startOfWeek = dayjs().startOf("week");
         const endOfWeek = dayjs().endOf("week");
@@ -191,76 +207,31 @@ export default function BasicTable({
       });
     }
 
-    return sortArr;
+    return currentArr;
   };
+
+  useEffect(() => {
+    if (uniqTasks && uniqTasks.en && uniqTasks.ua) {
+      setUniqTaskList(uniqTasks);
+    }
+    if (uniqRooms.length > 0) {
+      setUniqRoomList(uniqRooms);
+    }
+  }, [uniqRooms, uniqTasks]);
 
   return (
     <>
-      {uniqRoomNumbers?.size > 0 && (
-        <Paper
-          elevation={2}
-          sx={{
-            width: "100%",
-            maxWidth: "400px",
-            display: "flex",
-
-            gap: "10px",
-            p: "10px",
-          }}
-        >
-          <FormControl
-            fullWidth
-            sx={{ maxWidth: "400px" }}
-            disabled={isLoading}
-          >
-            <InputLabel>{language === "en" ? "Room" : "Кімната"}</InputLabel>
-            <Select
-              value={room}
-              label={language === "en" ? "Room" : "Кімната"}
-              onChange={handleChange}
-            >
-              <MenuItem value={""}>
-                {language === "en" ? "Reset" : "Скинути"}
-              </MenuItem>
-              {soertedUniqRoomNumbers?.map((roomNumber, index) => (
-                <MenuItem key={index} value={roomNumber}>
-                  {language === "en" ? " Room" : " Кімната"} {roomNumber}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* <FormControl
-            fullWidth
-            sx={{ maxWidth: "400px" }}
-            disabled={isLoading}
-          >
-            <InputLabel>
-              {language === "en" ? "Items per page" : "Елементів на сторінці"}
-            </InputLabel>
-            <Select
-              value={limit}
-              label={
-                language === "en" ? "Items per page" : "Елементів на сторінці"
-              }
-              onChange={handleLimitChange}
-            >
-              {[20, 50, 100].map((num) => (
-                <MenuItem key={num} value={num}>
-                  {language === "en" ? "Items" : "Елементів"}
-                  {` ${num}`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl> */}
-        </Paper>
-      )}
-
       <RowRadioButtonsGroup
         filterList={filterList}
         setFilterList={setFilterList}
         isLoading={isLoading}
         language={language}
+        isFilterTas={isFilterTask}
+        setIsFilterTask={setIsFilterTask}
+        uniqTaskList={uniqTaskList}
+        room={room}
+        setRoom={setRoom}
+        uniqRoomList={uniqRoomList}
       />
 
       <TableContainer
@@ -317,7 +288,7 @@ export default function BasicTable({
                       <TableCell>{date}</TableCell>
                       <TableCell>{task[language]}</TableCell>
 
-                      {authentificated && user?.emailVerified && (
+                      {permissions && (
                         <>
                           <TableCell
                             align="center"
@@ -337,9 +308,7 @@ export default function BasicTable({
                           <TableCell>
                             {checked?.isDone && (
                               <Typography variant="caption" whiteSpace="nowrap">
-                                {permissions
-                                  ? "Admin"
-                                  : checked?.checker?.displayName}
+                                {checked?.checker?.displayName}
                               </Typography>
                             )}
                           </TableCell>
@@ -424,6 +393,31 @@ export default function BasicTable({
           </Typography>
         )}
       </TableContainer>
+      {sortArr && sortArr.length > 0 && (
+        <>
+          {isDoPdf && (
+            <Pdf
+              data={currentArr() ? currentArr() : []}
+              nameCollection={nameCollection}
+            />
+          )}
+
+          {permissions && (
+            <Button
+              variant="contained"
+              onClick={() => setIsDoPdf((preState) => !preState)}
+            >
+              {!isDoPdf
+                ? language === "en"
+                  ? "Make a PDF"
+                  : "Зробити PDF"
+                : language === "en"
+                ? "Collapse a PDF"
+                : "Згорнути PDF"}
+            </Button>
+          )}
+        </>
+      )}
     </>
   );
 }
