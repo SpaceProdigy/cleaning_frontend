@@ -12,8 +12,8 @@ import { DayItem } from "./DayItem/DayItem";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
-  selectLessonsLoading,
   selectSchedulesArr,
+  selectSchedulesLoading,
 } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +37,7 @@ export default function Calendar({
 }) {
   const [isModal, setIsModal] = useState(false);
   const language = useSelector(selectLanguage);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   const schedulesArr = useSelector(selectSchedulesArr);
   const navigate = useNavigate();
 

@@ -12,9 +12,11 @@ import { logOutThunk } from "../../redux/authOparations";
 
 import MainList from "./MainList/MainList";
 import AuthList from "./AuthList/AuthList";
+import ScheduleList from "./ScheduleList/ScheduleList";
 
 export default function DrawerMenu() {
   const { pathname } = useLocation();
+
   const language = useSelector(selectLanguage);
   const appDruwerBar = useSelector(selectAppBarDrawer);
   const isAuthentificated = useSelector(selectAuthentificated);
@@ -30,7 +32,12 @@ export default function DrawerMenu() {
 
   const DrawerList = (
     <Box
-      sx={{ width: 250, height: "100%" }}
+      sx={{
+        width: 250,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
       role="presentation"
       onClick={(e) => {
         if (e.target.closest("#link")) {
@@ -43,16 +50,25 @@ export default function DrawerMenu() {
       }}
     >
       <MainList pathname={pathname} language={language} theme={theme} />
-      {/* <ScheduleList pathname={pathname} language={language} theme={theme} /> */}
-
       <Divider />
-      <AuthList
+      <ScheduleList
         pathname={pathname}
         language={language}
         theme={theme}
-        isAuthentificated={isAuthentificated}
-        hendleLogOut={hendleLogOut}
+        toggleDrawer={toggleDrawer}
       />
+
+      <Divider />
+      <Box sx={{ marginTop: "auto" }}>
+        <Divider />
+        <AuthList
+          pathname={pathname}
+          language={language}
+          theme={theme}
+          isAuthentificated={isAuthentificated}
+          hendleLogOut={hendleLogOut}
+        />
+      </Box>
     </Box>
   );
 

@@ -11,7 +11,7 @@ import {
   getScheduleThunk,
   updateScheduleByIdThunk,
 } from "../../redux/cleaningOperations";
-import { selectLessonsLoading } from "../../redux/cleaningSlice";
+import { selectSchedulesLoading } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
 import ImageTitle from "../../components/ImageTitle/ImageTitle";
 
@@ -36,7 +36,7 @@ const Schedule = ({
   mainTitle,
   cleaningRules,
 }) => {
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   const language = useSelector(selectLanguage);
 
   const { displayName = "No name", uid = "No ID" } =
@@ -88,11 +88,14 @@ const Schedule = ({
         nameCollection,
         locationMonth,
         cancelToken: cancelTokenSource,
-        setTotalPages,
         page,
         limit,
       })
-    );
+    )
+      .unwrap()
+      .then(({ totalPages }) => {
+        setTotalPages(totalPages);
+      });
 
     // Очистка при размонтировании компонента (отмена запроса)
     return () => {

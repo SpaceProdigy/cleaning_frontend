@@ -11,9 +11,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
   resetCleaningData,
-  selectLessonsLoading,
   selectMissedCleaningArr,
   selectSchedulesArr,
+  selectSchedulesLoading,
 } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ NotCleanTable.propTypes = { nameCollection: PropTypes.string.isRequired };
 export default function NotCleanTable({ nameCollection }) {
   const language = useSelector(selectLanguage);
   const schedulesArr = useSelector(selectSchedulesArr);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   const missedCleaningArr = useSelector(selectMissedCleaningArr);
   const dispatch = useDispatch();
   const [room, setRoom] = useState("");
@@ -80,7 +80,13 @@ export default function NotCleanTable({ nameCollection }) {
     const roomNumber = e.target.value.trim().replace(/\D/g, ""); // Убираем все нецифры
 
     if (roomNumber > 999) {
-      setRoomError((await errorMessages(language, "maxLength")) + ` 999`);
+      setRoomError(
+        errorMessages({
+          lang: language,
+          errorType: "maxLength",
+          length: 999,
+        })
+      );
 
       return;
     }

@@ -13,12 +13,16 @@ import { localLessonsJillReducer } from "./localOperation";
 
 import { authReducer } from "./authSlice";
 import { cleaningReducer } from "./cleaningSlice";
+import { lessonsReducer } from "./lessonsSlice";
+import { postsReducer } from "./upLoadSlice";
 
 export const store = configureStore({
   reducer: {
     cleaning: cleaningReducer,
     local: localLessonsJillReducer,
     auth: authReducer,
+    lessons: lessonsReducer,
+    posts: postsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -1,11 +1,17 @@
-import { Box, Divider, Typography } from "@mui/material";
+import { Button, Divider, Typography } from "@mui/material";
 
 import { useEffect, useState } from "react";
-import { M_QuoteWrapper } from "./Footer.styled";
+import {
+  DonateWrapper,
+  Link,
+  M_QuoteWrapper,
+  MainWrapper,
+} from "./Footer.styled";
 import { quotes } from "../../locales/footer";
-
+import DnsIcon from "@mui/icons-material/Dns";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
+import { buttons, text } from "../../locales/normalize";
 
 export const Footer = () => {
   const language = useSelector(selectLanguage);
@@ -22,20 +28,34 @@ export const Footer = () => {
   return (
     <>
       <Divider />
-      <Box
-        sx={{
-          minHeight: 50,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <MainWrapper>
+        <DonateWrapper>
+          <Typography textAlign="center" variant="caption">
+            {text.donate[language]}
+          </Typography>
+          <Button
+            endIcon={<DnsIcon />}
+            size="small"
+            type="button"
+            variant="contained"
+            sx={{ whiteSpace: "nowrap" }}
+          >
+            <Link
+              href="https://revolut.me/oleh62j9i"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {buttons.donate[language]}
+            </Link>
+          </Button>
+        </DonateWrapper>
+        <Divider sx={{ width: "100%" }} />
         <M_QuoteWrapper>
           <Typography textAlign="center" variant="caption">
             {quote}
           </Typography>
         </M_QuoteWrapper>
-      </Box>
+      </MainWrapper>
       <Divider />
     </>
   );

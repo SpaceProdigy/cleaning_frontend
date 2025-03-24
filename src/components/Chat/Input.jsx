@@ -36,7 +36,13 @@ export default function CustomizedInput({ setChatMessages }) {
     const inputText = e.target.value;
 
     if (inputText.length > 1000) {
-      setError((await errorMessages(language, "maxLength")) + " " + 1000);
+      setError(
+        errorMessages({
+          lang: language,
+          errorType: "maxLength",
+          length: 1000,
+        })
+      );
       return;
     } else {
       setError("");
@@ -50,7 +56,7 @@ export default function CustomizedInput({ setChatMessages }) {
     const trimmedText = text.trim();
 
     if (!trimmedText) {
-      setError(await errorMessages(language, "mEmpty"));
+      setError(errorMessages({ lang: language, errorType: "mEmpty" }));
       return;
     }
 

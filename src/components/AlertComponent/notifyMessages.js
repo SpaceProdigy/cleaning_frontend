@@ -1,4 +1,16 @@
-const notification = ({ language, notifyType, nameCollection }) => {
+export const notificationMapObj = {
+  alreadySentToGroup: "alreadySentToGroup",
+  sentToGroup: `sentToGroup`,
+  validation: "validation",
+  server: "server",
+  mEmpty: "mEmpty",
+  maxLength: "maxLength",
+  upLoadURLNotFound: "upLoadURLNotFound",
+  postSuccessfullyCreated: "postSuccessfullyCreated",
+  maxSize: "maxSize",
+};
+
+const notification = ({ language, notifyType, nameCollection, extraText }) => {
   const notificationMap = {
     ua: {
       alreadySentToGroup: `Сьогодні вже надіслано нагадування для групи ${nameCollection}.`,
@@ -7,6 +19,9 @@ const notification = ({ language, notifyType, nameCollection }) => {
       server: "Ошибка сервера, попробуйте позже.",
       mEmpty: "Повідомлення не може бути порожнім!",
       maxLength: "Максимальна довжина",
+      upLoadURLNotFound: "URL не знайдено у відповіді сервера!",
+      postSuccessfullyCreated: "Пост успішно створено",
+      maxSize: `Максимальний розмір файлу ${extraText}`,
     },
     en: {
       alreadySentToGroup: `A reminder has already been sent for the group ${nameCollection} today.`,
@@ -15,6 +30,9 @@ const notification = ({ language, notifyType, nameCollection }) => {
       server: "Server error, please try again later.",
       mEmpty: "Message cannot be empty!",
       maxLength: "Max length",
+      upLoadURLNotFound: "URL not found in server response!",
+      postSuccessfullyCreated: "Post successfully created",
+      maxSize: `Мaximum file size ${extraText}`,
     },
   };
 
@@ -27,7 +45,17 @@ const notification = ({ language, notifyType, nameCollection }) => {
   return notifyMessage;
 };
 
-export const notifyMessages = ({ language, notifyType, nameCollection }) => {
-  const error = notification({ language, notifyType, nameCollection });
+export const notifyMessages = ({
+  language,
+  notifyType,
+  nameCollection = "",
+  extraText = "",
+}) => {
+  const error = notification({
+    language,
+    notifyType,
+    nameCollection,
+    extraText,
+  });
   return error;
 };

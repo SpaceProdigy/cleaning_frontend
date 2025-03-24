@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation.js";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { selectLessonsLoading } from "../../redux/cleaningSlice.js";
+import { selectSchedulesLoading } from "../../redux/cleaningSlice.js";
 
 SelectMonth.propTypes = {
   nameCollection: PropTypes.string.isRequired,
@@ -19,7 +19,7 @@ SelectMonth.propTypes = {
 
 export default function SelectMonth({ nameCollection, locationMonth }) {
   const language = useSelector(selectLanguage);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   const navigate = useNavigate();
 
   return (

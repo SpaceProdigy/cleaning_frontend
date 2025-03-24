@@ -14,13 +14,13 @@ import {
   StyledTypography,
 } from "./Rulse.styled";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import PropTypes from "prop-types";
+
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import { telegramGroups } from "../../locales/telegram";
 import NotCleanTable from "../NotCleanTable/NotCleanTable";
-import { selectLessonsLoading } from "../../redux/cleaningSlice";
-
+import { selectSchedulesLoading } from "../../redux/cleaningSlice";
+import PropTypes from "prop-types";
 Rulse.propTypes = {
   cleaningRules: PropTypes.string,
   nameCollection: PropTypes.string,
@@ -28,7 +28,7 @@ Rulse.propTypes = {
 
 export default function Rulse({ cleaningRules, nameCollection }) {
   const language = useSelector(selectLanguage);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   return (
     <AccordionWrapper>
       <Accordion disabled={isLoading}>

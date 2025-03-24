@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import { db, storage } from "../../firebaseConfig";
-import { notify } from "../components/AlertComponent/notify";
+
 import {
   deleteObject,
   getDownloadURL,
@@ -15,6 +15,7 @@ import { collectionDb } from "../locales/collectionDb";
 
 import axios from "axios";
 import { notifyMessages } from "../components/AlertComponent/notifyMessages";
+import { notify } from "../components/AlertComponent/notify";
 
 const ENV = import.meta.env;
 
@@ -40,7 +41,7 @@ const someThingWrongAlarm = () => {
 export const getScheduleThunk = createAsyncThunk(
   "cleaning/get",
   async (
-    { nameCollection, locationMonth, cancelToken, setTotalPages, page, limit },
+    { nameCollection, locationMonth, cancelToken, page, limit },
     { rejectWithValue }
   ) => {
     try {
@@ -55,9 +56,7 @@ export const getScheduleThunk = createAsyncThunk(
         }
       );
 
-      setTotalPages(data.totalPages);
-
-      return data.data;
+      return { data: data.data, totalPages: data.totalPages };
     } catch (error) {
       if (axios.isCancel(error)) {
         console.log("Запрос отменён", error.message);

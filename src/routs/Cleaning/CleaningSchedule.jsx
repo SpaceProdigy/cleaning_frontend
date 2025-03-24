@@ -3,7 +3,7 @@ import { lazy, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectAuthPermissions } from "../../redux/authSlice.js";
 import { corridorRange, kitchen4Range } from "../../locales/roomsRange.js";
-import image1 from "../../pictures/pageSchedule/clean1.jpg";
+import image1 from "../../pictures/pageSchedule/clean1.jpeg";
 import {
   blueCorridorTasksList,
   kitchen4TasksList,

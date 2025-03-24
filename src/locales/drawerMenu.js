@@ -19,6 +19,10 @@ export const drawerTextCorridor = {
   en: "Corridor cleaning schedule",
   ua: "Графік прибирання коридору",
 };
+export const drawerLessonsCorridor = {
+  en: "Lessons",
+  ua: "Уроки",
+};
 
 export const buttonAuthText = [
   {
@@ -89,5 +93,15 @@ export const buttonScheduleKitchenText = [
       ua: "Кухня 6",
     },
     path: `${pathPages.kitchen6}/${dayjs().format("YYYY-MM")}`,
+  },
+];
+
+export const buttonScheduleLessonsText = [
+  {
+    text: {
+      en: "Lessons with Jill",
+      ua: "Уроки з Джилл",
+    },
+    path: `lessons/${pathPages.lessonWithJill}/${dayjs().format("YYYY-MM")}`,
   },
 ];

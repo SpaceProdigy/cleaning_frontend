@@ -25,6 +25,11 @@ const Home = lazy(() => import("./pages/Home/Home.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound/NotFound.jsx"));
 const SignIn = lazy(() => import("./pages/auth/SignIn/SignIn.jsx"));
 const SignUp = lazy(() => import("./pages/auth/SignUp/SignUp.jsx"));
+const PostPage = lazy(() => import("./pages/PostPage/PostPage.jsx"));
+const LessonSchedule = lazy(() => import("./routs/lessons/LessonSchedule.jsx"));
+const FormattingGuide = lazy(() =>
+  import("./pages/FormattingGuide/FormattingGuide.jsx")
+);
 
 const Account = lazy(() => import("./pages/Account/Account.jsx"));
 
@@ -54,6 +59,18 @@ function App() {
                   <Route
                     path={`/:schedule/:date`}
                     element={<CleaningSchedule />}
+                  />
+                  <Route
+                    path={`/lessons/:name/:date`}
+                    element={<LessonSchedule />}
+                  />
+                  <Route
+                    path={`/post/:nameCollection/:id`}
+                    element={<PostPage />}
+                  />
+                  <Route
+                    path={`/FormattingGuide`}
+                    element={<FormattingGuide />}
                   />
 
                   <Route path={`${pathPages.signIn}`} element={<SignIn />} />

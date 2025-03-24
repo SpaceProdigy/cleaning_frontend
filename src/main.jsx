@@ -12,7 +12,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={<Loader />} persistor={persistor}>
-        <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <BrowserRouter
+          basename={import.meta.env.BASE_URL}
+          future={{
+            v7_startTransition: true, // Для флага startTransition
+            v7_relativeSplatPath: true, // Для флага относительного разрешения путей
+          }}
+        >
           <App />
         </BrowserRouter>
       </PersistGate>

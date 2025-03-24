@@ -23,3 +23,11 @@ export const titleKitchen = (language, number) => {
     return `Графік прибирання ${number}-ї кухні `;
   }
 };
+
+export const titleLesson = (language, name) => {
+  if (language === "ua") {
+    return `Урок із ${name.slice(10)}`;
+  }
+
+  return `Lesson with ${name.slice(10)}`;
+};

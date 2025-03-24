@@ -19,10 +19,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { selectLanguage } from "../../redux/localOperation";
 import {
-  selectLessonsLoading,
+  selectDefaultLesson,
+  selectLanguage,
+} from "../../redux/localOperation";
+import {
   selectSchedulesArr,
+  selectSchedulesLoading,
 } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
@@ -69,10 +72,11 @@ export default function BasicTable({
 }) {
   const language = useSelector(selectLanguage);
   const schedulesArr = useSelector(selectSchedulesArr);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   // const authentificated = useSelector(selectAuthentificated);
   const user = useSelector(selectAuthUser) || {};
-  const [filterList, setFilterList] = useState("Hide past dates");
+  const localFilter = useSelector(selectDefaultLesson);
+
   const [isFilterTask, setIsFilterTask] = useState("");
   const [uniqTaskList, setUniqTaskList] = useState({});
   const [uniqRoomList, setUniqRoomList] = useState([]);
@@ -191,13 +195,21 @@ export default function BasicTable({
       );
     }
 
-    if (filterList === "Hide past dates") {
+    if (
+      (localFilter["filter" + nameCollection]
+        ? localFilter["filter" + nameCollection]
+        : "Fully") === "Hide past dates"
+    ) {
       currentArr = currentArr?.filter(
         ({ date }) =>
           dayjs(date).isAfter(dayjs()) || dayjs(date).isSame(dayjs(), "day")
       );
     }
-    if (filterList === "Current week") {
+    if (
+      (localFilter["filter" + nameCollection]
+        ? localFilter["filter" + nameCollection]
+        : "Fully") === "Current week"
+    ) {
       currentArr = currentArr?.filter(({ date }) => {
         const day = dayjs(date);
         const startOfWeek = dayjs().startOf("week");
@@ -211,19 +223,13 @@ export default function BasicTable({
   };
 
   useEffect(() => {
-    if (uniqTasks && uniqTasks.en && uniqTasks.ua) {
-      setUniqTaskList(uniqTasks);
-    }
-    if (uniqRooms.length > 0) {
-      setUniqRoomList(uniqRooms);
-    }
+    setUniqTaskList(uniqTasks);
+    setUniqRoomList(uniqRooms);
   }, [uniqRooms, uniqTasks]);
 
   return (
     <>
       <RowRadioButtonsGroup
-        filterList={filterList}
-        setFilterList={setFilterList}
         isLoading={isLoading}
         language={language}
         isFilterTas={isFilterTask}
@@ -232,6 +238,7 @@ export default function BasicTable({
         room={room}
         setRoom={setRoom}
         uniqRoomList={uniqRoomList}
+        nameCollection={nameCollection}
       />
 
       <TableContainer

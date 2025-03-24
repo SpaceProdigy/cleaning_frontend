@@ -1,5 +1,5 @@
 import {
-  Divider,
+  // Divider,
   List,
   ListItem,
   ListItemButton,
@@ -7,16 +7,16 @@ import {
   ListItemText,
 } from "@mui/material";
 import {
-  buttonScheduleCorridorText,
-  buttonScheduleKitchenText,
+  // buttonScheduleCorridorText,
+  // buttonScheduleKitchenText,
   buttonText,
-  drawerTextCorridor,
-  drawerTextKitchen,
+  // drawerTextCorridor,
+  // drawerTextKitchen,
 } from "../../../locales/drawerMenu";
 import { StyledNavLink } from "../DrawerMenu.styled";
 import HomeIcon from "@mui/icons-material/Home";
-import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
-import CountertopsIcon from "@mui/icons-material/Countertops";
+// import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
+// import CountertopsIcon from "@mui/icons-material/Countertops";
 
 import PropTypes from "prop-types";
 MainList.propTypes = {
@@ -42,7 +42,7 @@ export default function MainList({ pathname, language, theme }) {
           </StyledNavLink>
         </ListItem>
       ))}
-      <ListItem>
+      {/* <ListItem>
         <ListItemText secondary={drawerTextCorridor[language]} />
       </ListItem>
       <Divider />
@@ -82,7 +82,7 @@ export default function MainList({ pathname, language, theme }) {
             </ListItemButton>
           </StyledNavLink>
         </ListItem>
-      ))}
+      ))} */}
     </List>
   );
 }

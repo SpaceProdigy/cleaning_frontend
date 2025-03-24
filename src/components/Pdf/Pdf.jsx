@@ -15,12 +15,12 @@ import {
 import { PdfReminder } from "./PdfReminder.jsx";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
-import { selectLessonsLoading } from "../../redux/cleaningSlice";
+import { selectSchedulesLoading } from "../../redux/cleaningSlice";
 import { PdfList } from "./PdfList.jsx";
 
 export const Pdf = ({ data, nameCollection }) => {
   const language = useSelector(selectLanguage);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   const [select, setSelect] = useState("List");
   const [loading, setLoading] = useState(true);
 

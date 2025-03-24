@@ -3,8 +3,8 @@ import SendIcon from "@mui/icons-material/Send";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
-  selectLessonsLoading,
   selectSchedulesArr,
+  selectSchedulesLoading,
 } from "../../redux/cleaningSlice";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -16,7 +16,7 @@ RemindButton.propTypes = { nameCollection: PropTypes.string.isRequired };
 
 export default function RemindButton({ nameCollection }) {
   const language = useSelector(selectLanguage);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
   const schedulesArr = useSelector(selectSchedulesArr);
   const [cancelTokenSource, setCancelTokenSource] = useState(null);
   const [alreadySent, setAlreadySent] = useState(false);

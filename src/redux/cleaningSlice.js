@@ -47,7 +47,7 @@ const cleaningSlice = createSlice({
       .addCase(getScheduleThunk.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        state.cleaningArr = action.payload;
+        state.cleaningArr = action.payload.data;
       })
 
       .addCase(getScheduleByRoomThunk.pending, handlePending)
@@ -150,9 +150,8 @@ const cleaningSlice = createSlice({
 export const { resetCleaningData } = cleaningSlice.actions;
 export const cleaningReducer = cleaningSlice.reducer;
 
-export const selectLessonsLoading = (state) => state.cleaning.isLoading;
+export const selectSchedulesLoading = (state) => state.cleaning.isLoading;
 export const selectSchedulesArr = (state) => state.cleaning.cleaningArr;
 export const selectMissedCleaningArr = (state) =>
   state.cleaning.missedCleaningArr;
 export const selectLessonsById = (state) => state.cleaning.lessonById;
-export const selectLessonsJillError = (state) => state.cleaning.error;

@@ -27,8 +27,8 @@ import {
 } from "./ModalCallendar.styled";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { selectLessonsLoading } from "../../../redux/cleaningSlice";
 import { useSelector } from "react-redux";
+import { selectSchedulesLoading } from "../../../redux/cleaningSlice";
 
 export const ModalCalendar = ({
   isEdit,
@@ -43,7 +43,7 @@ export const ModalCalendar = ({
   setIsDeleteModal,
 }) => {
   const [isFocuse, setIsFocus] = useState(false);
-  const isLoading = useSelector(selectLessonsLoading);
+  const isLoading = useSelector(selectSchedulesLoading);
 
   useEffect(() => {
     setIsChooseALesson(isEdit?.data[0]);
@@ -134,7 +134,7 @@ export const ModalCalendar = ({
                     <ListItemText>
                       {language === "en"
                         ? "Add cleaning"
-                        : "Додайте прибірання"}
+                        : "Додайте прибирання"}
                     </ListItemText>
                     <ListItemIcon sx={{ ml: 2 }}>
                       <AddCircleIcon color="success" />

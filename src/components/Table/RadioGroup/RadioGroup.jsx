@@ -7,32 +7,37 @@ import PropTypes from "prop-types";
 import { InputLabel, MenuItem, Select } from "@mui/material";
 import { nanoid } from "@reduxjs/toolkit";
 import { WrapperSelects } from "./RadioGroup.styled";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectDefaultLesson,
+  setDefaultValueLesson,
+} from "../../../redux/localOperation";
 
 RowRadioButtonsGroup.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   language: PropTypes.string.isRequired,
-  filterList: PropTypes.string.isRequired,
-  setFilterList: PropTypes.func.isRequired,
   setIsFilterTask: PropTypes.func.isRequired,
   isFilterTas: PropTypes.string.isRequired,
   uniqTaskList: PropTypes.object.isRequired,
   room: PropTypes.string.isRequired,
   setRoom: PropTypes.func.isRequired,
   uniqRoomList: PropTypes.array.isRequired,
+  nameCollection: PropTypes.string.isRequired,
 };
 
 export default function RowRadioButtonsGroup({
-  filterList,
   isLoading,
   language,
-  setFilterList,
   setIsFilterTask,
   isFilterTas,
   uniqTaskList,
   room,
   setRoom,
   uniqRoomList,
+  nameCollection,
 }) {
+  const dispatch = useDispatch();
+  const localFilter = useSelector(selectDefaultLesson);
   return (
     <div>
       <FormControl>
@@ -41,8 +46,18 @@ export default function RowRadioButtonsGroup({
         </FormLabel>
         <RadioGroup
           row
-          value={filterList}
-          onChange={(e) => setFilterList(e.target.value)}
+          value={
+            localFilter["filter" + nameCollection]
+              ? localFilter["filter" + nameCollection]
+              : "Fully"
+          }
+          onChange={(e) =>
+            dispatch(
+              setDefaultValueLesson({
+                ["filter" + nameCollection]: e.target.value,
+              })
+            )
+          }
         >
           <FormControlLabel
             disabled={isLoading}
