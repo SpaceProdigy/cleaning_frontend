@@ -4,29 +4,23 @@ import imageCompression from "browser-image-compression";
 import { IconButton } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
-import { upLoadFilesToTelegramAndCloudinaryThunk } from "../../redux/upLoadOperetions";
 import DescriptionComponent from "./DescriptionComponent/DescriptionComponent";
 import ImageCarousel from "../ImageCarousel/ImageCarousel";
 import { selectAuthUser } from "../../redux/authSlice";
-import { notify } from "../AlertComponent/notify";
+import { notify } from "../../components/AlertComponent/notify";
 import {
   notificationMapObj,
   notifyMessages,
-} from "../AlertComponent/notifyMessages";
+} from "../../components/AlertComponent/notifyMessages";
 import { AnimatePresence } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import { CloseIconWrapper, MainWrapper } from "./PostFileUploader.styled";
 import PropTypes from "prop-types";
-const MAX_FILE_SIZE = 20 * 1024 * 1024;
+import { upLoadFilesToGoogleDiskAndCloudinaryThunk } from "../../redux/booksOperetions";
+const MAX_FILE_SIZE = 200 * 1024 * 1024;
 const MAX_POSTER_SIZE = 5 * 1024 * 1024;
 
-const PostFileUploader = ({
-  setOpen,
-  setLoading,
-  defaultTag = "",
-  defaultCategory,
-  nameCollection,
-}) => {
+const PostFileUploader = ({ setOpen, setLoading, defaultCategory }) => {
   const language = useSelector(selectLanguage);
   const user = useSelector(selectAuthUser);
   const dispatch = useDispatch();
@@ -35,10 +29,10 @@ const PostFileUploader = ({
   const [posterPreview, setPosterPreview] = useState([]);
   const [files, setFiles] = useState([]);
 
-  const cancelTokenRef = useRef(null); // Храним токен отмены
+  const cancelTokenRef = useRef(null);
 
   const handlePosterChange = async (e) => {
-    const files = Array.from(e.target.files).slice(0, 10); // Ограничение до 10 файлов
+    const files = e.length > 0 ? e : Array.from(e.target.files).slice(0, 10); // Ограничение до 10 файлов
 
     const previewFiles = [];
     const compressedFiles = [];
@@ -82,7 +76,8 @@ const PostFileUploader = ({
   };
 
   const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files).slice(0, 10); // Ограничение до 10 файлов
+    const selectedFiles =
+      e.length > 0 ? e : Array.from(e.target.files).slice(0, 10); // Ограничение до 10 файлов
 
     const validFiles = selectedFiles.filter(
       (file) => file.size <= MAX_FILE_SIZE
@@ -94,7 +89,7 @@ const PostFileUploader = ({
         notifyMessages({
           language,
           notifyType: notificationMapObj.maxSize,
-          extraText: "20MB",
+          extraText: "200MB",
         })
       );
     }
@@ -122,18 +117,11 @@ const PostFileUploader = ({
           photoURL: user.photoURL,
         })
       );
-      if (data?.tags?.trim() || defaultTag) {
-        formData.append("tags", `${data?.tags}, ${defaultTag}`);
-      }
-      if (data?.mainText?.trim()) {
-        formData.append("description", data?.mainText);
-      }
+
       if (data?.title?.trim()) {
         formData.append("title", data?.title);
       }
-      if (data?.videoLink?.trim()) {
-        formData.append("videoLink", data?.videoLink);
-      }
+
       if (data?.category?.trim()) {
         formData.append("category", data?.category);
       }
@@ -145,11 +133,10 @@ const PostFileUploader = ({
       }
 
       dispatch(
-        upLoadFilesToTelegramAndCloudinaryThunk({
+        upLoadFilesToGoogleDiskAndCloudinaryThunk({
           cancelToken: cancelTokenRef.current.token,
           formData,
           language,
-          nameCollection,
         })
       ).finally(() => {
         setLoading(false);
@@ -195,5 +182,4 @@ PostFileUploader.propTypes = {
   setLoading: PropTypes.func.isRequired,
   defaultTag: PropTypes.string,
   defaultCategory: PropTypes.string,
-  nameCollection: PropTypes.string.isRequired,
 };

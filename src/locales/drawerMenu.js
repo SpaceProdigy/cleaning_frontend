@@ -104,4 +104,11 @@ export const buttonScheduleLessonsText = [
     },
     path: `lessons/${pathPages.lessonWithJill}/${dayjs().format("YYYY-MM")}`,
   },
+  {
+    text: {
+      en: "Books",
+      ua: "Книги",
+    },
+    path: `books`,
+  },
 ];

@@ -15,7 +15,7 @@ import CountertopsIcon from "@mui/icons-material/Countertops";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import BookIcon from "@mui/icons-material/Book";
 // import { buttonScheduleText } from "../../../locales/drawerMenu";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   buttonScheduleCorridorText,
   buttonScheduleKitchenText,
@@ -24,6 +24,8 @@ import {
   drawerTextCorridor,
   drawerTextKitchen,
 } from "../../../locales/drawerMenu";
+import { useSelector } from "react-redux";
+import { selectAuthPermissions } from "../../../redux/authSlice";
 ScheduleList.propTypes = {
   pathname: PropTypes.string.isRequired,
   language: PropTypes.string.isRequired,
@@ -39,6 +41,11 @@ export default function ScheduleList({
 }) {
   const stylePathName = pathname.split("/").filter(Boolean)[0];
   const [expanded, setExpanded] = useState(false);
+  const userPermissions = useSelector(selectAuthPermissions);
+
+  const permissions = userPermissions.some(
+    (item) => item === "superAdmin" || item === "books"
+  );
 
   useEffect(() => {
     if (pathname.includes("kitchen")) {
@@ -166,29 +173,40 @@ export default function ScheduleList({
           {buttonScheduleLessonsText.map(({ text, path }, index) => {
             const stylePath = path.split("/").filter(Boolean)[0];
 
+            let isRender = true;
+
+            if (path === "books" && !permissions) {
+              isRender = false;
+            } else {
+              isRender = true;
+            }
             return (
-              <List key={index} sx={{ p: 0 }} id="according">
-                <ListItem disablePadding>
-                  <StyledNavLink
-                    to={path}
-                    state={pathname}
-                    onClick={() => toggleDrawer(false)}
-                  >
-                    <ListItemButton
-                      sx={{
-                        background:
-                          stylePathName === stylePath &&
-                          theme.palette.action.selected,
-                      }}
-                    >
-                      <ListItemIcon>
-                        <BookIcon />
-                      </ListItemIcon>
-                      <ListItemText primary={text[language]} />
-                    </ListItemButton>
-                  </StyledNavLink>
-                </ListItem>
-              </List>
+              <Fragment key={index}>
+                {isRender && (
+                  <List sx={{ p: 0 }} id="according">
+                    <ListItem disablePadding>
+                      <StyledNavLink
+                        to={path}
+                        state={pathname}
+                        onClick={() => toggleDrawer(false)}
+                      >
+                        <ListItemButton
+                          sx={{
+                            background:
+                              stylePathName === stylePath &&
+                              theme.palette.action.selected,
+                          }}
+                        >
+                          <ListItemIcon>
+                            <BookIcon />
+                          </ListItemIcon>
+                          <ListItemText primary={text[language]} />
+                        </ListItemButton>
+                      </StyledNavLink>
+                    </ListItem>
+                  </List>
+                )}
+              </Fragment>
             );
           })}
         </AccordionDetails>

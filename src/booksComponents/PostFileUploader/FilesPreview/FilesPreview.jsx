@@ -11,6 +11,8 @@ FilesPreview.propTypes = {
   files: PropTypes.array.isRequired,
   setFiles: PropTypes.func,
   variant: PropTypes.string,
+  cross: PropTypes.bool,
+  onlySize: PropTypes.bool,
 };
 
 // Функция для конвертации размера файла
@@ -26,7 +28,13 @@ const formatFileSize = (size) => {
   }
 };
 
-export default function FilesPreview({ files = [], setFiles, variant }) {
+export default function FilesPreview({
+  files = [],
+  setFiles,
+  variant,
+  cross,
+  onlySize,
+}) {
   const handleDelete = (i) => {
     const newArr = files.filter((_, index) => index !== i);
 
@@ -41,7 +49,7 @@ export default function FilesPreview({ files = [], setFiles, variant }) {
         width: "100%",
       }}
     >
-      {files.map((item, index) => (
+      {files?.map((item, index) => (
         <div key={index}>
           <a
             href={variant === "fullPost" && item?.url ? item.url : undefined}
@@ -73,10 +81,19 @@ export default function FilesPreview({ files = [], setFiles, variant }) {
               ) : (
                 <InsertDriveFileIcon />
               )}
-              <Typography variant="caption">{`${item.name}: ${formatFileSize(
-                item.size
-              )}`}</Typography>
-              {variant !== "fullPost" && (
+              <>
+                {onlySize ? (
+                  <Typography variant="caption">{`${formatFileSize(
+                    item.size
+                  )}`}</Typography>
+                ) : (
+                  <Typography variant="caption">{`${
+                    item.name
+                  }: ${formatFileSize(item.size)}`}</Typography>
+                )}
+              </>
+
+              {variant !== "fullPost" && cross !== false && (
                 <IconButton onClick={() => handleDelete(index)}>
                   <CloseIcon fontSize="small" color="error" />
                 </IconButton>

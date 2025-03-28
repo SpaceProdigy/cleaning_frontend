@@ -37,6 +37,7 @@
     "react-alice-carousel": "^2.9.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.51.3",
     "react-loader-spinner": "^6.1.6",
     "react-markdown": "^10.1.0",

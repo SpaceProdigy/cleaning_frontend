@@ -54,3 +54,9 @@ export const categoriesList = [
   { id: 13, en: "Science", ua: "Наука" },
   { id: 14, en: "Travel", ua: "Подорожі" },
 ];
+
+export const BooksCategoriesList = [
+  { id: 4, en: "English language", ua: "Англійська мова" },
+  { id: 5, en: "Dutch language", ua: "Голландська мова" },
+  { id: 16, en: "Guitar lesson", ua: "Урок гри на гітарі" },
+];

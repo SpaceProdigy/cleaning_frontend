@@ -30,6 +30,7 @@ const LessonSchedule = lazy(() => import("./routs/lessons/LessonSchedule.jsx"));
 const FormattingGuide = lazy(() =>
   import("./pages/FormattingGuide/FormattingGuide.jsx")
 );
+const Books = lazy(() => import("./pages/Books/Books.jsx"));
 
 const Account = lazy(() => import("./pages/Account/Account.jsx"));
 
@@ -68,6 +69,7 @@ function App() {
                     path={`/post/:nameCollection/:id`}
                     element={<PostPage />}
                   />
+                  <Route path={`/books`} element={<Books />} />
                   <Route
                     path={`/FormattingGuide`}
                     element={<FormattingGuide />}

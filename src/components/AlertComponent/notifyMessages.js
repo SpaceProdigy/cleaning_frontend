@@ -8,6 +8,7 @@ export const notificationMapObj = {
   upLoadURLNotFound: "upLoadURLNotFound",
   postSuccessfullyCreated: "postSuccessfullyCreated",
   maxSize: "maxSize",
+  bookDownloaded: "bookDownloaded",
 };
 
 const notification = ({ language, notifyType, nameCollection, extraText }) => {
@@ -22,6 +23,7 @@ const notification = ({ language, notifyType, nameCollection, extraText }) => {
       upLoadURLNotFound: "URL не знайдено у відповіді сервера!",
       postSuccessfullyCreated: "Пост успішно створено",
       maxSize: `Максимальний розмір файлу ${extraText}`,
+      bookDownloaded: "Книну успішно завантажено",
     },
     en: {
       alreadySentToGroup: `A reminder has already been sent for the group ${nameCollection} today.`,
@@ -33,6 +35,7 @@ const notification = ({ language, notifyType, nameCollection, extraText }) => {
       upLoadURLNotFound: "URL not found in server response!",
       postSuccessfullyCreated: "Post successfully created",
       maxSize: `Мaximum file size ${extraText}`,
+      bookDownloaded: "Book successfully downloaded",
     },
   };
 

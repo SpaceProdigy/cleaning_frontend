@@ -6,6 +6,7 @@ import {
   IconButton,
   Modal,
   Paper,
+  Skeleton,
   Tooltip,
   useMediaQuery,
 } from "@mui/material";
@@ -49,7 +50,7 @@ import {
 import { WrapperPostUploader } from "../Home/Home.styled";
 import Posts from "../../componentsForLesson/Posts/Posts";
 import { getLessonsPostsByTagThunk } from "../../redux/upLoadOperetions";
-import { selectPostsArr } from "../../redux/upLoadSlice";
+import { selectPostLoading, selectPostsArr } from "../../redux/upLoadSlice";
 
 const ScheduleLessons = ({
   permissions,
@@ -60,6 +61,8 @@ const ScheduleLessons = ({
   defaultCategory = null,
 }) => {
   const language = useSelector(selectLanguage);
+  const isLoadingPosts = useSelector(selectPostLoading);
+
   const [loading, setLoading] = useState(false);
   const { displayName = "No name", uid = "No ID" } =
     useSelector(selectAuthUser) || {};
@@ -222,20 +225,16 @@ const ScheduleLessons = ({
     const cancelTokenSource = axios.CancelToken.source();
 
     const fetchLessonsPosts = async () => {
-      try {
-        await dispatch(
-          getLessonsPostsByTagThunk({
-            nameCollection,
-            tag: nameCollection,
-            page: postPage,
-            limit: postLimit,
-            cancelToken: cancelTokenSource,
-            setTotalPages: setTotalPostPages,
-          })
-        );
-      } catch (error) {
-        console.error("Ошибка при загрузке постов:", error);
-      }
+      dispatch(
+        getLessonsPostsByTagThunk({
+          nameCollection,
+          tag: nameCollection,
+          page: postPage,
+          limit: postLimit,
+          cancelToken: cancelTokenSource,
+          setTotalPages: setTotalPostPages,
+        })
+      );
     };
 
     fetchLessonsPosts();
@@ -351,30 +350,51 @@ const ScheduleLessons = ({
 
         <PostWrapperBox>
           <PostWrapper ref={postsContainerRef}>
-            {postsArr?.length > 0 && (
+            {isLoadingPosts ? (
+              <Box display="flex" gap="10px">
+                {[...Array(5)].map((_, index) => (
+                  <Paper
+                    key={index}
+                    sx={{ p: 2, mb: 2, width: "300px", flexShrink: "0" }}
+                  >
+                    <Skeleton variant="rectangular" width="100%" height={150} />
+                    <Skeleton width="60%" />
+                    <Skeleton width="80%" />
+                  </Paper>
+                ))}
+              </Box>
+            ) : (
               <>
-                {totalPostPages > 1 && postPage > 1 && (
-                  <IconButtonBox>
-                    <IconButton
-                      size="large"
-                      onClick={handlePrevPage}
-                      disabled={postPage === 1}
-                    >
-                      <ArrowCircleLeftIcon fontSize="large" />
-                    </IconButton>
-                  </IconButtonBox>
-                )}
-                <Posts postsArr={postsArr} nameCollection={nameCollection} />
-                {totalPostPages !== postPage && (
-                  <IconButtonBox>
-                    <IconButton size="large" onClick={handleNextPage}>
-                      <ArrowCircleRightIcon fontSize="large" />
-                    </IconButton>
-                  </IconButtonBox>
+                {postsArr?.length > 0 && (
+                  <>
+                    {totalPostPages > 1 && postPage > 1 && (
+                      <IconButtonBox>
+                        <IconButton
+                          size="large"
+                          onClick={handlePrevPage}
+                          disabled={postPage === 1}
+                        >
+                          <ArrowCircleLeftIcon fontSize="large" />
+                        </IconButton>
+                      </IconButtonBox>
+                    )}
+                    <Posts
+                      postsArr={postsArr}
+                      nameCollection={nameCollection}
+                    />
+                    {totalPostPages !== postPage && (
+                      <IconButtonBox>
+                        <IconButton size="large" onClick={handleNextPage}>
+                          <ArrowCircleRightIcon fontSize="large" />
+                        </IconButton>
+                      </IconButtonBox>
+                    )}
+                  </>
                 )}
               </>
             )}
           </PostWrapper>
+
           {permissions && (
             <Button variant="contained" onClick={handleOpen}>
               {buttons.addPost[language]}
