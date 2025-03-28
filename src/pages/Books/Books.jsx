@@ -17,13 +17,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectBooksArr, selectBooksLoading } from "../../redux/booksSlice";
 import { deleteBookThunk, getBooksThunk } from "../../redux/booksOperetions";
 import { selectAuthPermissions } from "../../redux/authSlice";
-import { WrapperPostUploader } from "./Books.styled";
+import { StyledImage, WrapperPostUploader } from "./Books.styled";
 import PostFileUploader from "../../booksComponents/PostFileUploader/PostFileUploader";
 import axios from "axios";
 import Like from "../../booksComponents/Like/Like";
 import FilesPreview from "../../booksComponents/PostFileUploader/FilesPreview/FilesPreview";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
+import ImageTitle from "../../components/ImageTitle/ImageTitle";
+
+const image =
+  "https://res.cloudinary.com/dajlyi3lg/image/upload/v1743129935/Flux_Dev_A_warm_and_cozy_stilllife_scene_featuring_a_collectio_3_1_chi0kq.jpg";
 
 export default function Books() {
   const isLoading = useSelector(selectBooksLoading);
@@ -32,13 +36,17 @@ export default function Books() {
   const permissions = userPermissions.some(
     (item) => item === "superAdmin" || item === "books"
   );
-
+  const isEditor = userPermissions.some((item) => item === "superAdmin");
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [selectImg, setSelectImg] = useState(null);
   const [open, setOpen] = useState(false);
+  const [openImg, setOpenImg] = useState(false);
+  const handleCloseImg = () => setOpenImg(false);
+  const handleOpenImg = () => setOpenImg(true);
   const [page, setPage] = useState(1);
-  const [limit] = useState(20);
+  const [limit] = useState(100);
   const [totalPages, setTotalPages] = useState(0);
   const cancelToken = useRef(null);
   const navigate = useNavigate();
@@ -81,13 +89,18 @@ export default function Books() {
         cancelToken.current.cancel("Component unmounted.");
       }
     };
-  }, [dispatch, page, limit]);
-
+  }, [dispatch, page, limit, permissions, navigate]);
+  console.log(openImg);
   return (
     <>
+      <ImageTitle
+        image={image}
+        // tipingText={lesson && lesson?.date && lesson.date}
+        title={"Books"}
+      />
       {permissions && (
-        <Box my={4}>
-          <Box display="flex" justifyContent="center" mb={2}>
+        <Box my={4} height="100%">
+          <Box display="flex" justifyContent="center" mb={3}>
             <TextField
               label="Search books"
               variant="outlined"
@@ -100,6 +113,7 @@ export default function Books() {
           <Box
             sx={{
               display: "flex",
+              flex: 1,
               gap: "20px",
               flexWrap: "wrap",
               alignItems: "center",
@@ -108,7 +122,11 @@ export default function Books() {
           >
             <AnimatePresence>
               {filteredBooks?.map(
-                ({ title, files, posters, likedBy, likes, _id }) => (
+                (
+                  { title, files, posters, likedBy, likes, _id },
+                  index,
+                  arr
+                ) => (
                   <motion.div
                     key={_id}
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -116,7 +134,6 @@ export default function Books() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {" "}
                     <Paper
                       key={_id}
                       sx={{
@@ -125,9 +142,10 @@ export default function Books() {
                         display: "flex",
                         position: "relative",
                         flexDirection: "column",
+                        overflow: "hidden",
                       }}
                     >
-                      {permissions && (
+                      {isEditor && (
                         <Box
                           sx={{
                             position: "absolute",
@@ -145,15 +163,13 @@ export default function Books() {
                         </Box>
                       )}
 
-                      <img
+                      <StyledImage
+                        onClick={() => {
+                          handleOpenImg();
+                          setSelectImg(arr[index]);
+                        }}
                         src={posters[0]?.url}
                         alt={title}
-                        style={{
-                          width: "100%",
-                          height: "240px",
-                          objectFit: "cover",
-                          borderRadius: "8px 8px 0 0",
-                        }}
                       />
                       <Box
                         sx={{
@@ -237,7 +253,7 @@ export default function Books() {
             </Box>
           )}
 
-          {permissions && (
+          {isEditor && (
             <Box display="flex" justifyContent="center" my="20px">
               <Button variant="contained" onClick={handleOpen}>
                 Add Book
@@ -259,6 +275,25 @@ export default function Books() {
                 nameCollection={"books"}
                 setOpen={setOpen}
                 setLoading={setLoading}
+              />
+            </WrapperPostUploader>
+          </Modal>
+
+          <Modal open={openImg} onClose={handleCloseImg} closeAfterTransition>
+            <WrapperPostUploader>
+              <img
+                onClick={() => {
+                  handleOpenImg();
+                  setSelectImg(null);
+                  handleCloseImg();
+                }}
+                src={selectImg?.posters[0]?.url}
+                alt={selectImg?.title}
+                style={{
+                  objectFit: "contain",
+
+                  cursor: "zoom-out",
+                }}
               />
             </WrapperPostUploader>
           </Modal>

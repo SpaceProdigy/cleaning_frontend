@@ -1,5 +1,6 @@
 import { Box, styled } from "@mui/material";
-import img from "../../pictures/pageEnMaterial/city-bridg.jpg";
+const img =
+  "https://res.cloudinary.com/dajlyi3lg/image/upload/v1742340709/m1qfkqrfxkgris5hdzx5.jpg";
 
 export const HeaderFotoBox = styled(Box)`
   width: calc(100% + 32px);

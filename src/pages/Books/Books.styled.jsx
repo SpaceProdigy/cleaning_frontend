@@ -12,3 +12,15 @@ export const WrapperPostUploader = styled(Box)`
   left: 50%;
   transform: translate(-50%, -50%);
 `;
+export const StyledImage = styled("img")`
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  cursor: zoom-in;
+  transition: scale 400ms ease-in-out;
+
+  &:hover {
+    scale: 1.05;
+  }
+`;
