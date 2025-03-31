@@ -88,6 +88,8 @@ export default function Calendar({
           <DateCalendar
             disabled={isLoading}
             value={null}
+            disableFuture={isLoading}
+            disablePast={isLoading}
             onMonthChange={(e) => {
               const newUrl = `/${nameCollection}/${e.format("YYYY-MM")}`;
               navigate(newUrl, { replace: true });

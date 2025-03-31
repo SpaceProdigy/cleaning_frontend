@@ -93,6 +93,8 @@ export default function Calendar({
         >
           <DateCalendar
             disabled={isLoading}
+            disableFuture={isLoading}
+            disablePast={isLoading}
             value={null}
             onMonthChange={(e) => {
               const newUrl = `/lessons/${nameCollection}/${e.format(

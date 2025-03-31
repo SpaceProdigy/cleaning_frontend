@@ -14,8 +14,12 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useSelector } from "react-redux";
-import { selectLanguage } from "../../../redux/localOperation";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectDefaultLesson,
+  selectLanguage,
+  setDefaultValueLesson,
+} from "../../../redux/localOperation";
 import { Wrapper, WrapperClose } from "./ModalAddLesson.styled";
 import CloseIcon from "@mui/icons-material/Close";
 import PropTypes from "prop-types";
@@ -78,6 +82,7 @@ ModalAddLesson.propTypes = {
   placeList: PropTypes.array.isRequired,
   editItem: PropTypes.object,
   setEditItem: PropTypes.func,
+  nameCollection: PropTypes.string.isRequired,
 };
 
 export default function ModalAddLesson({
@@ -88,10 +93,13 @@ export default function ModalAddLesson({
   isDay,
   editItem,
   setEditItem,
+  nameCollection,
 }) {
   const language = useSelector(selectLanguage);
   const isLoading = useSelector(selectLessonsLoading);
+  const localFilter = useSelector(selectDefaultLesson);
 
+  const dispatch = useDispatch();
   const {
     control,
     handleSubmit,
@@ -111,39 +119,67 @@ export default function ModalAddLesson({
   });
 
   const handleFormSubmit = (data) => {
+    dispatch(
+      setDefaultValueLesson({
+        ["startTime" + nameCollection]: data.startTime.toISOString(),
+        ["endTime" + nameCollection]: data.endTime.toISOString(),
+        ["place" + nameCollection]: data.place,
+      })
+    );
     onSubmit(data).finally(() => reset());
   };
 
   useEffect(() => {
     const currentDefaultValues = () => {
+      let defaultValues = {};
+
       if (editItem?._id) {
-        return reset({
+        defaultValues = {
           date: dayjs(editItem.date).startOf("day"),
-          startTime: dayjs(editItem.startTime)
-            .hour(dayjs(editItem.startTime).hour())
-            .minute(dayjs(editItem.startTime).minute()),
-          endTime: dayjs(editItem.endTime)
-            .hour(dayjs(editItem.endTime).hour())
-            .minute(dayjs(editItem.endTime).minute()),
+          startTime: dayjs(editItem.startTime),
+          endTime: dayjs(editItem.endTime),
           place: editItem.place,
           topic: editItem.topic,
           notes: editItem.notes,
-        });
-      }
-      if (isDay) {
-        return reset({
+        };
+      } else if (isDay) {
+        defaultValues = {
           date: isDay || dayjs(),
           startTime: dayjs().hour(17).minute(30),
           endTime: dayjs().hour(19).minute(0),
           place: placeList[0].en,
           topic: "",
           notes: "",
-        });
+        };
       }
+
+      if (localFilter["startTime" + nameCollection]) {
+        defaultValues.startTime = dayjs(
+          localFilter["startTime" + nameCollection]
+        );
+      }
+
+      if (localFilter["endTime" + nameCollection]) {
+        defaultValues.endTime = dayjs(localFilter["endTime" + nameCollection]);
+      }
+
+      if (localFilter["place" + nameCollection]) {
+        defaultValues.place = localFilter["place" + nameCollection];
+      }
+
+      reset(defaultValues);
     };
 
     currentDefaultValues();
-  }, [editItem, isDay, placeList, reset, setEditItem]);
+  }, [
+    editItem,
+    isDay,
+    localFilter,
+    nameCollection,
+    placeList,
+    reset,
+    setEditItem,
+  ]);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>

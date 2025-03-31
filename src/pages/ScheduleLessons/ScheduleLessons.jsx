@@ -414,6 +414,7 @@ const ScheduleLessons = ({
           isDay={isDay}
           editItem={editItem}
           setEditItem={setEditItem}
+          nameCollection={nameCollection}
         />
         <ModalDelete
           dispatch={dispatch}
