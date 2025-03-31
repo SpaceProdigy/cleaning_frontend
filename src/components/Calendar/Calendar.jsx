@@ -87,11 +87,7 @@ export default function Calendar({
         >
           <DateCalendar
             disabled={isLoading}
-            value={
-              dayjs(locationMonth).isValid()
-                ? dayjs(locationMonth).date(dayjs().date())
-                : null
-            }
+            value={null}
             onMonthChange={(e) => {
               const newUrl = `/${nameCollection}/${e.format("YYYY-MM")}`;
               navigate(newUrl, { replace: true });

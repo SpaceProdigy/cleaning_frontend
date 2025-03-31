@@ -35,10 +35,7 @@ export default function SelectMonth({ nameCollection, locationMonth }) {
             const newUrl = `/lessons/${nameCollection}/${dayjs(
               e.target.value
             ).format("YYYY-MM")}`;
-            if (location.pathname !== newUrl) {
-              console.log("SelectMonth Navigating to:", newUrl);
-              navigate(newUrl);
-            }
+            navigate(newUrl);
           }}
         >
           {monthArr(language).map((month, index) => (

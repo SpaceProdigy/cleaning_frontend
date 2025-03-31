@@ -4,7 +4,6 @@ import Calendar from "../../components/Calendar/Calendar";
 import BasicTable from "../../components/Table/Table";
 import { Password } from "../../components/Password/Password";
 import { AlertComponent } from "../../components/AlertComponent/AlertComponent";
-import SelectMonth from "../../components/SelectMonth/SelectMonth";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addScheduleThunk,
@@ -211,20 +210,6 @@ const Schedule = ({
               alignItems="center"
               gap="30px"
             >
-              <Paper
-                elevation={2}
-                sx={{
-                  width: "100%",
-                  maxWidth: 400,
-                  boxShadow: "0px 0px 3px -2px rgba(0,0,0,0.82)",
-                }}
-              >
-                <SelectMonth
-                  nameCollection={nameCollection}
-                  locationMonth={locationMonth}
-                />
-              </Paper>
-
               <BasicTable
                 page={page}
                 setPage={setPage}

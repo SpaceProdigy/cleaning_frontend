@@ -30,7 +30,6 @@ import {
 } from "../../redux/lessonsOperations";
 import Calendar from "../../componentsForLesson/Calendar/Calendar";
 import { notify } from "../../components/AlertComponent/notify";
-import SelectMonth from "../../componentsForLesson/SelectMonth/SelectMonth";
 import BasicTable from "../../componentsForLesson/Table/Table";
 import { telegramGroups } from "../../locales/telegram";
 import {
@@ -128,7 +127,7 @@ const ScheduleLessons = ({
       return;
     }
 
-    const date = dayjs(data.date).startOf("day").toISOString();
+    const date = dayjs(data.date).format("YYYY-MM-DDT00:00:00.000[Z]");
     const startTime = dayjs(data.date)
       .hour(dayjs(data.startTime).hour())
       .minute(dayjs(data.startTime).minute())
@@ -295,20 +294,6 @@ const ScheduleLessons = ({
               alignItems="center"
               gap="30px"
             >
-              <Paper
-                elevation={2}
-                sx={{
-                  width: "100%",
-                  maxWidth: "400px",
-                  boxShadow: "0px 0px 3px -2px rgba(0,0,0,0.82)",
-                }}
-              >
-                <SelectMonth
-                  nameCollection={nameCollection}
-                  locationMonth={locationMonth}
-                />
-              </Paper>
-
               <BasicTable
                 nameCollection={nameCollection}
                 page={page}

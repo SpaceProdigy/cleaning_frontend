@@ -123,6 +123,8 @@ export const DayItem = ({
                 ? `solid 2px ${theme.palette.info.main} !important`
                 : shouldDisplay.length > 0 &&
                   `solid 2px ${theme.palette.success.main}`,
+              background:
+                props.today && `${theme.palette.info.main} !important`,
             }}
           />
         </Tooltip>
