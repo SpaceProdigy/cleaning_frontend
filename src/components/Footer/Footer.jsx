@@ -12,9 +12,12 @@ import DnsIcon from "@mui/icons-material/Dns";
 import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import { buttons, text } from "../../locales/normalize";
+import WifiInfo from "../WifiInfo/WifiInfo";
+import { selectAuthentificated } from "../../redux/authSlice";
 
 export const Footer = () => {
   const language = useSelector(selectLanguage);
+  const isAuthentificated = useSelector(selectAuthentificated);
   const [quote, setQuote] = useState("");
 
   useEffect(() => {
@@ -50,6 +53,8 @@ export const Footer = () => {
           </Button>
         </DonateWrapper>
         <Divider sx={{ width: "100%" }} />
+        {isAuthentificated && <WifiInfo />}
+
         <M_QuoteWrapper>
           <Typography textAlign="center" variant="caption">
             {quote}

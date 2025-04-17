@@ -33,6 +33,7 @@
     "mui-tel-input": "^5.1.2",
     "pdfjs-dist": "^4.2.67",
     "qrcode": "^1.5.4",
+    "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-alice-carousel": "^2.9.1",
     "react-copy-to-clipboard": "^5.1.0",

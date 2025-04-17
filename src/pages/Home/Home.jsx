@@ -31,6 +31,7 @@ import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import Posts from "../../components/Posts/Posts";
 import { selectAuthPermissions } from "../../redux/authSlice";
+import BusSchedule from "../../components/BusSchedule/BusSchedule";
 
 const Home = () => {
   const language = useSelector(selectLanguage);
@@ -179,6 +180,9 @@ const Home = () => {
           </Button>
         </div>
       )}
+
+      <BusSchedule />
+
       <Backdrop
         open={loading}
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
