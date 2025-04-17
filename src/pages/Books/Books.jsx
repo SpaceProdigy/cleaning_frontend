@@ -90,7 +90,7 @@ export default function Books() {
       }
     };
   }, [dispatch, page, limit, permissions, navigate]);
-  console.log(openImg);
+
   return (
     <>
       <ImageTitle

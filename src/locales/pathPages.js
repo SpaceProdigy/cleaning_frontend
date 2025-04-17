@@ -7,6 +7,7 @@ export const pathPages = {
   kitchen5: "kitchen5",
   kitchen6: "kitchen6",
   lessonWithJill: "lessonWithJill",
+  lessonWithBert: "lessonWithBert",
   books: "books",
   signIn: "/signin",
   signUp: "/signup",

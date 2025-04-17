@@ -1,9 +1,12 @@
 import {
   Backdrop,
+  Box,
   Button,
   CircularProgress,
   IconButton,
   Modal,
+  Paper,
+  Skeleton,
   Typography,
 } from "@mui/material";
 import { TypingText } from "../../locales/home";
@@ -23,7 +26,7 @@ import { useEffect, useState, useRef } from "react";
 import { buttons } from "../../locales/normalize";
 import { getPostsThunk } from "../../redux/upLoadOperetions";
 import axios from "axios";
-import { selectPostsArr } from "../../redux/upLoadSlice";
+import { selectPostLoading, selectPostsArr } from "../../redux/upLoadSlice";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import Posts from "../../components/Posts/Posts";
@@ -31,9 +34,11 @@ import { selectAuthPermissions } from "../../redux/authSlice";
 
 const Home = () => {
   const language = useSelector(selectLanguage);
+  const isLoadingPosts = useSelector(selectPostLoading);
+
   const [open, setOpen] = useState(false);
-  const [totalPages, setTotalPages] = useState(null);
-  const [page, setPage] = useState(1);
+  const [totalPostPages, setTotalPostPages] = useState(1);
+  const [postPage, setPostPage] = useState(1);
   const postsArr = useSelector(selectPostsArr("home"));
   const permissions = useSelector(selectAuthPermissions);
   const hasAdminOrSuperAdmin = permissions.some(
@@ -52,9 +57,9 @@ const Home = () => {
     dispatch(
       getPostsThunk({
         cancelToken: source.token,
-        page,
+        page: postPage,
         nameCollection: "home",
-        setTotalPages,
+        setTotalPages: setTotalPostPages,
       })
     );
 
@@ -63,7 +68,7 @@ const Home = () => {
         source.cancel("Компонент размонтирован");
       }
     };
-  }, [dispatch, page]);
+  }, [dispatch, postPage]);
 
   const handleScroll = () => {
     if (postsArr.length > 0) {
@@ -80,15 +85,15 @@ const Home = () => {
   };
 
   const handleNextPage = () => {
-    if (page < totalPages) {
-      setPage(page + 1);
+    if (postPage < totalPostPages) {
+      setPostPage(postPage + 1);
       handleScroll();
     }
   };
 
   const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
+    if (postPage > 1) {
+      setPostPage(postPage - 1);
       handleScroll();
     }
   };
@@ -126,26 +131,43 @@ const Home = () => {
       </WrapperHero>
 
       <PostWrapper ref={postsContainerRef}>
-        {postsArr?.length > 0 && (
+        {isLoadingPosts ? (
+          <Box display="flex" gap="10px">
+            {[...Array(5)].map((_, index) => (
+              <Paper
+                key={index}
+                sx={{ p: 2, mb: 2, width: "300px", flexShrink: "0" }}
+              >
+                <Skeleton variant="rectangular" width="100%" height={150} />
+                <Skeleton width="60%" />
+                <Skeleton width="80%" />
+              </Paper>
+            ))}
+          </Box>
+        ) : (
           <>
-            {totalPages > 1 && page > 1 && (
-              <IconButtonBox>
-                <IconButton
-                  size="large"
-                  onClick={handlePrevPage}
-                  disabled={page === 1}
-                >
-                  <ArrowCircleLeftIcon fontSize="large" />
-                </IconButton>
-              </IconButtonBox>
-            )}
-            <Posts postsArr={postsArr} nameCollection="home" />
-            {totalPages !== page && (
-              <IconButtonBox>
-                <IconButton size="large" onClick={handleNextPage}>
-                  <ArrowCircleRightIcon fontSize="large" />
-                </IconButton>
-              </IconButtonBox>
+            {postsArr?.length > 0 && (
+              <>
+                {totalPostPages > 1 && postPage > 1 && (
+                  <IconButtonBox>
+                    <IconButton
+                      size="large"
+                      onClick={handlePrevPage}
+                      disabled={postPage === 1}
+                    >
+                      <ArrowCircleLeftIcon fontSize="large" />
+                    </IconButton>
+                  </IconButtonBox>
+                )}
+                <Posts postsArr={postsArr} nameCollection={"home"} />
+                {totalPostPages !== postPage && (
+                  <IconButtonBox>
+                    <IconButton size="large" onClick={handleNextPage}>
+                      <ArrowCircleRightIcon fontSize="large" />
+                    </IconButton>
+                  </IconButtonBox>
+                )}
+              </>
             )}
           </>
         )}

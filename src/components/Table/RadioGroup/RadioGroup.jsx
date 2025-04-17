@@ -17,7 +17,7 @@ RowRadioButtonsGroup.propTypes = {
   isLoading: PropTypes.bool.isRequired,
   language: PropTypes.string.isRequired,
   setIsFilterTask: PropTypes.func.isRequired,
-  isFilterTas: PropTypes.string.isRequired,
+  isFilterTas: PropTypes.array.isRequired,
   uniqTaskList: PropTypes.object.isRequired,
   room: PropTypes.string.isRequired,
   setRoom: PropTypes.func.isRequired,
@@ -85,6 +85,7 @@ export default function RowRadioButtonsGroup({
         <FormControl size="small" sx={{ width: "150px" }}>
           <InputLabel>{language === "en" ? "Task" : "Завдання"}</InputLabel>
           <Select
+            multiple
             value={isFilterTas}
             label={language === "en" ? "Task" : "Завдання"}
             onChange={(e) => setIsFilterTask(e.target.value)}

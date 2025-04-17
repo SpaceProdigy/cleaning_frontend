@@ -52,9 +52,10 @@ const PostPage = () => {
   const permissions = useSelector(selectAuthPermissions);
   const superAdmin = permissions.some((role) => role === "superAdmin");
   const hasAdminOrSuperAdmin = permissions.some(
-    (role) => role === "admin" || role === "superAdmin"
+    (role) =>
+      role === "admin" || role === "superAdmin" || role === nameCollection
   );
-
+  console.log(permissions);
   const handleDelete = () => {
     dispatch(deletePostThunk({ nameCollection, id }))
       .then(() => {

@@ -111,4 +111,11 @@ export const buttonScheduleLessonsText = [
     },
     path: `books`,
   },
+  {
+    text: {
+      en: "Guitar Lessons with Bert",
+      ua: "Уроки гітари з Бертом",
+    },
+    path: `lessons/${pathPages.lessonWithBert}/${dayjs().format("YYYY-MM")}`,
+  },
 ];

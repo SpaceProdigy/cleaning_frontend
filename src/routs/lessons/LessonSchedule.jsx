@@ -3,6 +3,7 @@ import { lazy, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { selectAuthPermissions } from "../../redux/authSlice.js";
 import image1 from "../../pictures/pageSchedule/english.jpeg";
+import image2 from "../../pictures/pageSchedule/guitar_world.jpg";
 import { titleLesson } from "../../locales/titels.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { pathPages } from "../../locales/pathPages.js";
@@ -41,6 +42,20 @@ export default function LessonSchedule() {
           image={image1}
           nameCollection={name}
           defaultCategory="English language"
+          permissions={
+            permissions.includes("superAdmin") ||
+            permissions.includes("admin") ||
+            permissions.includes(name)
+          }
+        />
+      )}
+      {name.includes("Bert") && (
+        <ScheduleLessons
+          mainTitle={titleLesson(language, name)}
+          placeList={lessonWithJillPlace}
+          image={image2}
+          nameCollection={name}
+          defaultCategory="Guitar lesson"
           permissions={
             permissions.includes("superAdmin") ||
             permissions.includes("admin") ||

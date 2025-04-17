@@ -39,7 +39,7 @@ export default function ScheduleList({
   theme,
   toggleDrawer,
 }) {
-  const stylePathName = pathname.split("/").filter(Boolean)[0];
+  const stylePathName = pathname.split("/").filter(Boolean)[1];
   const [expanded, setExpanded] = useState(false);
   const userPermissions = useSelector(selectAuthPermissions);
 
@@ -53,6 +53,9 @@ export default function ScheduleList({
     }
     if (pathname.includes("Corridor")) {
       setExpanded("corridor");
+    }
+    if (pathname.includes("lessons") || pathname.includes("book")) {
+      setExpanded("lessons");
     }
   }, [pathname]);
 
@@ -171,7 +174,7 @@ export default function ScheduleList({
         </AccordionSummary>
         <AccordionDetails sx={{ p: 0 }}>
           {buttonScheduleLessonsText.map(({ text, path }, index) => {
-            const stylePath = path.split("/").filter(Boolean)[0];
+            const stylePath = path.split("/").filter(Boolean)[1];
 
             let isRender = true;
 

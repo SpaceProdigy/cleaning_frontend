@@ -77,7 +77,7 @@ export default function BasicTable({
   const user = useSelector(selectAuthUser) || {};
   const localFilter = useSelector(selectDefaultLesson);
 
-  const [isFilterTask, setIsFilterTask] = useState("");
+  const [isFilterTask, setIsFilterTask] = useState([]);
   const [uniqTaskList, setUniqTaskList] = useState({});
   const [uniqRoomList, setUniqRoomList] = useState([]);
 
@@ -185,8 +185,14 @@ export default function BasicTable({
 
   const currentArr = () => {
     let currentArr = sortArr;
-    if (isFilterTask) {
-      currentArr = sortArr?.filter(({ task }) => task.en === isFilterTask);
+    if (isFilterTask.length > 0) {
+      if (isFilterTask.includes("")) {
+        currentArr = sortArr;
+      } else {
+        currentArr = sortArr?.filter((item) =>
+          isFilterTask.includes(item.task.en)
+        );
+      }
     }
 
     if (room) {
@@ -291,7 +297,6 @@ export default function BasicTable({
                       sx={(theme) => currenColor(theme, date, isDone)}
                     >
                       <TableCell>{roomNumber}</TableCell>
-
                       <TableCell>{date}</TableCell>
                       <TableCell>{task[language]}</TableCell>
 
