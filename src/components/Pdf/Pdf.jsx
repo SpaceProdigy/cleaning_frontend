@@ -26,7 +26,10 @@ export const Pdf = ({ data, nameCollection }) => {
   const [select, setSelect] = useState("List");
   const [loading, setLoading] = useState(true);
 
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  const isMobile = /android|iphone|ipad|ipod|windows phone|mobile/i.test(
+    userAgent
+  );
 
   useEffect(() => {
     if (data && nameCollection) {

@@ -34,6 +34,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "justify",
   },
+  emptyBox: {
+    width: "100px",
+    height: "100px",
+  },
 });
 
 const generateQRCode = async (text) => {
@@ -133,7 +137,15 @@ export const PdfReminder = ({ data, nameCollection }) => {
                     height: 100,
                   }}
                 />
-              ) : null}
+              ) : (
+                <View
+                  style={{
+                    width: 100,
+                    height: 100,
+                    backgroundColor: "#ffffff",
+                  }}
+                ></View>
+              )}
             </View>
           </View>
         ))}
