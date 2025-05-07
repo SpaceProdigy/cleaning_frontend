@@ -97,10 +97,6 @@ export default function Calendar({
             onChange={(e) => setIsDay(e)}
             views={["day"]}
             key={language}
-            sx={{
-              width: "100%",
-              maxWidth: 320,
-            }}
             loading={isLoading}
             renderLoading={() => <DayCalendarSkeleton />}
             slots={{

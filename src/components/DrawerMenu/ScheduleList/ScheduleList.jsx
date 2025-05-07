@@ -39,8 +39,8 @@ export default function ScheduleList({
   theme,
   toggleDrawer,
 }) {
-  const stylePathName = pathname.split("/").filter(Boolean)[1];
   const [expanded, setExpanded] = useState(false);
+  const [stylePathName, setStylePathName] = useState(null);
   const userPermissions = useSelector(selectAuthPermissions);
 
   const permissions = userPermissions.some(
@@ -50,12 +50,20 @@ export default function ScheduleList({
   useEffect(() => {
     if (pathname.includes("kitchen")) {
       setExpanded("kitchen");
+      setStylePathName(pathname.split("/")[1]);
     }
     if (pathname.includes("Corridor")) {
       setExpanded("corridor");
+      setStylePathName(pathname.split("/")[1]);
     }
+
     if (pathname.includes("lessons") || pathname.includes("book")) {
       setExpanded("lessons");
+      if (pathname.split("/")[1] === "books") {
+        setStylePathName(pathname.split("/")[1]);
+      } else {
+        setStylePathName(pathname.split("/")[2]);
+      }
     }
   }, [pathname]);
 
@@ -174,7 +182,11 @@ export default function ScheduleList({
         </AccordionSummary>
         <AccordionDetails sx={{ p: 0 }}>
           {buttonScheduleLessonsText.map(({ text, path }, index) => {
-            const stylePath = path.split("/").filter(Boolean)[1];
+            let stylePath = path.split("/").filter(Boolean)[1];
+
+            if (path === "books") {
+              stylePath = "books";
+            }
 
             let isRender = true;
 

@@ -11,6 +11,7 @@ Like.propTypes = {
   likes: PropTypes.number.isRequired,
   setIsLiking: PropTypes.func,
   nameCollection: PropTypes.string.isRequired,
+  isLiking: PropTypes.bool,
 };
 
 export default function Like({
@@ -19,6 +20,7 @@ export default function Like({
   likes,
   setIsLiking,
   nameCollection,
+  isLiking,
 }) {
   const dispatch = useDispatch();
   const user = useSelector(selectAuthUser);
@@ -54,7 +56,7 @@ export default function Like({
       }}
     >
       <IconButton
-        disabled={!authentificated}
+        disabled={!authentificated || isLiking}
         onClick={() => handleLike(_id)}
         color={checkLiked(likedBy) !== -1 ? "error" : "default"}
       >

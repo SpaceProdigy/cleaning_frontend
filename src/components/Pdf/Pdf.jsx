@@ -1,9 +1,11 @@
-import { PDFViewer } from "@react-pdf/renderer";
+import { pdf, PDFViewer } from "@react-pdf/renderer";
 
 import PropTypes from "prop-types";
 import "./pdfSettings.js";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Box,
+  Button,
   CircularProgress,
   FormControl,
   FormControlLabel,
@@ -23,6 +25,8 @@ export const Pdf = ({ data, nameCollection }) => {
   const isLoading = useSelector(selectSchedulesLoading);
   const [select, setSelect] = useState("List");
   const [loading, setLoading] = useState(true);
+
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
   useEffect(() => {
     if (data && nameCollection) {
@@ -98,6 +102,23 @@ export const Pdf = ({ data, nameCollection }) => {
       });
   }, [data]);
 
+  const handleGeneratePdf = async () => {
+    let blob;
+    if (select === "Reminder") {
+      blob = await pdf(
+        <PdfReminder nameCollection={nameCollection} data={data} />
+      ).toBlob();
+    }
+    if (select === "List") {
+      blob = await pdf(
+        <PdfList nameCollection={nameCollection} data={uniqueData} />
+      ).toBlob();
+    }
+
+    const url = URL.createObjectURL(blob);
+    window.open(url);
+  };
+
   if (loading) {
     return (
       <div style={{ width: "100%", textAlign: "center", paddingTop: "20px" }}>
@@ -133,19 +154,33 @@ export const Pdf = ({ data, nameCollection }) => {
           </RadioGroup>
         </FormControl>
       </Paper>
-      {select === "Reminder" && (
-        <PDFViewer style={{ width: "100%", height: "600px", border: "none" }}>
-          <PdfReminder nameCollection={nameCollection} data={newData} />
-        </PDFViewer>
-      )}
-      {select === "List" && (
-        <PDFViewer style={{ width: "100%", height: "600px", border: "none" }}>
-          <PdfList
-            nameCollection={nameCollection}
-            data={uniqueData}
-            language={language}
-          />
-        </PDFViewer>
+      {isMobile ? (
+        <Box my={2} display={"flex"} justifyContent={"center"}>
+          <Button variant="contained" onClick={handleGeneratePdf}>
+            Create PDF
+          </Button>
+        </Box>
+      ) : (
+        <>
+          {select === "Reminder" && (
+            <PDFViewer
+              style={{ width: "100%", height: "600px", border: "none" }}
+            >
+              <PdfReminder nameCollection={nameCollection} data={newData} />
+            </PDFViewer>
+          )}
+          {select === "List" && (
+            <PDFViewer
+              style={{ width: "100%", height: "600px", border: "none" }}
+            >
+              <PdfList
+                nameCollection={nameCollection}
+                data={uniqueData}
+                language={language}
+              />
+            </PDFViewer>
+          )}
+        </>
       )}
     </Paper>
   );

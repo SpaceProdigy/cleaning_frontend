@@ -10,7 +10,10 @@ import {
   getScheduleThunk,
   updateScheduleByIdThunk,
 } from "../../redux/cleaningOperations";
-import { selectSchedulesLoading } from "../../redux/cleaningSlice";
+import {
+  resetCleaningData,
+  selectSchedulesLoading,
+} from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
 import ImageTitle from "../../components/ImageTitle/ImageTitle";
 
@@ -22,7 +25,6 @@ import ModalAddLesson from "./ModalEddLesson/ModalAddLesson";
 import { useLocation, useNavigate } from "react-router-dom";
 import { selectAuthUser } from "../../redux/authSlice";
 import Rulse from "../../components/Rules/Rulse";
-import axios from "axios";
 import RemindButton from "../../components/RemindButton/RemindButton";
 import { selectLanguage } from "../../redux/localOperation";
 
@@ -76,8 +78,6 @@ const Schedule = ({
   // console.log("SELECT", valueSelect);
 
   useEffect(() => {
-    const cancelTokenSource = axios.CancelToken.source();
-
     const newUrl = `/${nameCollection}/${locationMonth}`;
 
     navigate(newUrl, { replace: true });
@@ -86,7 +86,6 @@ const Schedule = ({
       getScheduleThunk({
         nameCollection,
         locationMonth,
-        cancelToken: cancelTokenSource,
         page,
         limit,
       })
@@ -96,12 +95,7 @@ const Schedule = ({
         setTotalPages(totalPages);
       });
 
-    // Очистка при размонтировании компонента (отмена запроса)
-    return () => {
-      cancelTokenSource.cancel(
-        "Компонент был размонтирован или маршрут изменен"
-      );
-    };
+    return () => dispatch(resetCleaningData());
   }, [dispatch, limit, locationMonth, nameCollection, navigate, page]);
 
   const handleAddALesson = () => {
@@ -230,6 +224,7 @@ const Schedule = ({
 
               {cleaningRules && (
                 <Rulse
+                  key={nameCollection}
                   cleaningRules={cleaningRules}
                   nameCollection={nameCollection}
                 />

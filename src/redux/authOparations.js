@@ -395,7 +395,6 @@ export const updatePermissionsThunk = createAsyncThunk(
   "auth/updatePermissions",
   async ({ updateRole, type, userId }, { rejectWithValue }) => {
     try {
-      console.log(updateRole);
       await axios.patch(`${BASE_URL}users/${userId}`, updateRole);
 
       if (type === "delete") {

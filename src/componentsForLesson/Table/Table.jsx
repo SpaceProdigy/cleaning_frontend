@@ -316,8 +316,8 @@ export default function BasicTable({
         {!isLoading && sortArr.length === 0 && (
           <Typography variant="h6" textAlign="center" marginBottom={2} mt={2}>
             {language === "en"
-              ? "Cleaning this month are not yet scheduled"
-              : "Прибирання в цьому місяці ще не заплановано"}
+              ? "Lessons this month are not yet scheduled"
+              : "Уроки в цьому місяці ще не заплановано"}
           </Typography>
         )}
       </TableContainer>

@@ -9,6 +9,13 @@ export const buttonText = [
     },
     path: "/",
   },
+  {
+    text: {
+      en: "PDF",
+      ua: "PDF",
+    },
+    path: `${pathPages.pdf}`,
+  },
 ];
 
 export const drawerTextKitchen = {

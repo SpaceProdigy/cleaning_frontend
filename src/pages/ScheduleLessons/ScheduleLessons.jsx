@@ -6,7 +6,6 @@ import {
   IconButton,
   Modal,
   Paper,
-  Skeleton,
   Tooltip,
   useMediaQuery,
 } from "@mui/material";
@@ -50,6 +49,7 @@ import { WrapperPostUploader } from "../Home/Home.styled";
 import Posts from "../../componentsForLesson/Posts/Posts";
 import { getLessonsPostsByTagThunk } from "../../redux/upLoadOperetions";
 import { selectPostLoading, selectPostsArr } from "../../redux/upLoadSlice";
+import PostSkeleton from "../../components/PostSkeleton/PostSkeleton";
 
 const ScheduleLessons = ({
   permissions,
@@ -85,6 +85,8 @@ const ScheduleLessons = ({
   const [postLimit] = useState(10);
   const [totalPostPages, setTotalPostPages] = useState(1);
   const [addPostModal, setAddPostModal] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+
   const postsContainerRef = useRef(null);
 
   const handleOpen = () => setAddPostModal(true);
@@ -335,17 +337,10 @@ const ScheduleLessons = ({
 
         <PostWrapperBox>
           <PostWrapper ref={postsContainerRef}>
-            {isLoadingPosts ? (
+            {isLoadingPosts && !isLiking ? (
               <Box display="flex" gap="10px">
                 {[...Array(5)].map((_, index) => (
-                  <Paper
-                    key={index}
-                    sx={{ p: 2, mb: 2, width: "300px", flexShrink: "0" }}
-                  >
-                    <Skeleton variant="rectangular" width="100%" height={150} />
-                    <Skeleton width="60%" />
-                    <Skeleton width="80%" />
-                  </Paper>
+                  <PostSkeleton key={index} />
                 ))}
               </Box>
             ) : (
@@ -366,6 +361,8 @@ const ScheduleLessons = ({
                     <Posts
                       postsArr={postsArr}
                       nameCollection={nameCollection}
+                      setIsLiking={setIsLiking}
+                      isLiking={isLiking}
                     />
                     {totalPostPages !== postPage && (
                       <IconButtonBox>

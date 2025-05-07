@@ -31,6 +31,7 @@ const FormattingGuide = lazy(() =>
   import("./pages/FormattingGuide/FormattingGuide.jsx")
 );
 const Books = lazy(() => import("./pages/Books/Books.jsx"));
+const PagePDF = lazy(() => import("./pages/PagePDF/PagePDF.jsx"));
 
 const Account = lazy(() => import("./pages/Account/Account.jsx"));
 
@@ -70,6 +71,7 @@ function App() {
                     element={<PostPage />}
                   />
                   <Route path={`/books`} element={<Books />} />
+                  <Route path={`/pdf`} element={<PagePDF />} />
                   <Route
                     path={`/FormattingGuide`}
                     element={<FormattingGuide />}

@@ -38,17 +38,23 @@ const someThingWrongAlarm = () => {
   );
 };
 
+let abortController = null;
+
 export const getScheduleThunk = createAsyncThunk(
   "cleaning/get",
   async (
-    { nameCollection, locationMonth, cancelToken, page, limit },
+    { nameCollection, locationMonth = false, page, limit },
     { rejectWithValue }
   ) => {
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
     try {
       const { data } = await axios.get(
         `${BASE_URL}cleaning/${nameCollection}/${locationMonth}`,
         {
-          cancelToken: cancelToken.token,
           params: {
             page,
             limit,
@@ -58,8 +64,9 @@ export const getScheduleThunk = createAsyncThunk(
 
       return { data: data.data, totalPages: data.totalPages };
     } catch (error) {
-      if (axios.isCancel(error)) {
-        console.log("Запрос отменён", error.message);
+      if (axios.isCancel?.(error) || error.code === "ERR_CANCELED") {
+        console.log("Запрос отменён:", error.message);
+        return;
       }
       return rejectWithValue(error.message);
     }
@@ -72,7 +79,6 @@ export const getScheduleByRoomThunk = createAsyncThunk(
     {
       nameCollection,
       roomNumber,
-      cancelToken,
       isTidied,
       page,
       limit,
@@ -81,11 +87,15 @@ export const getScheduleByRoomThunk = createAsyncThunk(
     },
     { rejectWithValue }
   ) => {
+    if (abortController) {
+      abortController.abort();
+    }
+
+    abortController = new AbortController();
     try {
       const { data } = await axios.get(
         `${BASE_URL}cleaning/${nameCollection}/room/${roomNumber}/${isTidied}`,
         {
-          cancelToken: cancelToken.token,
           params: {
             page,
             limit,
@@ -98,8 +108,9 @@ export const getScheduleByRoomThunk = createAsyncThunk(
 
       return data.data;
     } catch (error) {
-      if (axios.isCancel(error)) {
-        console.log("Запрос отменён", error.message);
+      if (axios.isCancel?.(error) || error.code === "ERR_CANCELED") {
+        console.log("Запрос отменён:", error.message);
+        return;
       }
       return rejectWithValue(error.message);
     }

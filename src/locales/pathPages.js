@@ -9,6 +9,7 @@ export const pathPages = {
   lessonWithJill: "lessonWithJill",
   lessonWithBert: "lessonWithBert",
   books: "books",
+  pdf: "pdf",
   signIn: "/signin",
   signUp: "/signup",
   account: "/account",

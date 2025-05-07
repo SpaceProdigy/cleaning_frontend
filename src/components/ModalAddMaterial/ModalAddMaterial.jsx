@@ -73,8 +73,6 @@ export default function ModalAddMaterial({
       );
       selectedFiles = [...imagesArr, pdfMoreOne[0]];
     }
-    console.log(pdfMoreOne);
-    console.log(selectedFiles);
 
     if (lessonMaterials.materials && lessonMaterials.materials.length > 0) {
       const arrFileName = lessonMaterials.materials.map(({ name }) => name);

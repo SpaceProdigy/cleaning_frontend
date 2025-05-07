@@ -20,9 +20,16 @@ import UniversalReactMarkdown from "../UniversalReactMarkdown/UniversalReactMark
 Posts.propTypes = {
   postsArr: PropTypes.array.isRequired,
   nameCollection: PropTypes.string.isRequired,
+  setIsLiking: PropTypes.func,
+  isLiking: PropTypes.bool,
 };
 
-export default function Posts({ postsArr, nameCollection }) {
+export default function Posts({
+  postsArr,
+  nameCollection,
+  setIsLiking,
+  isLiking,
+}) {
   return (
     <>
       {postsArr.map(
@@ -79,10 +86,12 @@ export default function Posts({ postsArr, nameCollection }) {
 
                 {_id && likedBy && (
                   <Like
+                    setIsLiking={setIsLiking}
                     _id={_id}
                     likedBy={likedBy}
                     likes={likes}
                     nameCollection={nameCollection}
+                    isLiking={isLiking}
                   />
                 )}
               </Box>

@@ -36,7 +36,6 @@ const cleaningSlice = createSlice({
     resetCleaningData: (state) => {
       state.cleaningArr = [];
       state.missedCleaningArr = [];
-      state.lessonById = {};
       state.error = null;
     },
   },

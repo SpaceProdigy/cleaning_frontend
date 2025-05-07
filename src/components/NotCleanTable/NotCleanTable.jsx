@@ -10,13 +10,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useDispatch, useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import {
-  resetCleaningData,
   selectMissedCleaningArr,
   selectSchedulesArr,
   selectSchedulesLoading,
 } from "../../redux/cleaningSlice";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Checkbox,
@@ -34,7 +33,6 @@ import { errorMessages } from "../../errorMessages";
 import { Wrapper, WrapperHelperText } from "./NotCleanTable.styled";
 import { getScheduleByRoomThunk } from "../../redux/cleaningOperations";
 import PropTypes from "prop-types";
-import axios from "axios";
 
 NotCleanTable.propTypes = { nameCollection: PropTypes.string.isRequired };
 
@@ -48,7 +46,6 @@ export default function NotCleanTable({ nameCollection }) {
   const [selectedRoom, setSelectedRoom] = useState("");
   const [roomError, setRoomError] = useState("");
   const [isTidied, setIsTidied] = useState(false);
-  const [cancelTokenSource, setCancelTokenSource] = useState(null);
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
@@ -56,14 +53,12 @@ export default function NotCleanTable({ nameCollection }) {
 
   const handlePaginationChange = (_, n) => {
     setPage(n);
-    const source = axios.CancelToken.source();
-    setCancelTokenSource(source);
 
     dispatch(
       getScheduleByRoomThunk({
         nameCollection,
         roomNumber: selectedRoom,
-        cancelToken: source,
+
         isTidied,
         page: n,
         limit,
@@ -100,15 +95,13 @@ export default function NotCleanTable({ nameCollection }) {
     if (room.length < 1) {
       return;
     }
-    // Создаём токен отмены для нового запроса
-    const source = axios.CancelToken.source();
-    setCancelTokenSource(source);
+
+    setPage(1);
 
     dispatch(
       getScheduleByRoomThunk({
         nameCollection,
         roomNumber: room,
-        cancelToken: source,
         isTidied,
         page,
         limit,
@@ -165,16 +158,6 @@ export default function NotCleanTable({ nameCollection }) {
       : filteredArr && filteredArr.length > 0
       ? filteredArr
       : [];
-
-  // Очистка при размонтировании компонента
-  useEffect(() => {
-    return () => {
-      if (cancelTokenSource) {
-        cancelTokenSource.cancel("Компонент был размонтирован.");
-      }
-      dispatch(resetCleaningData());
-    };
-  }, [cancelTokenSource, dispatch]);
 
   return (
     <Wrapper>

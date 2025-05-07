@@ -5,8 +5,6 @@ import {
   CircularProgress,
   IconButton,
   Modal,
-  Paper,
-  Skeleton,
   Typography,
 } from "@mui/material";
 import { TypingText } from "../../locales/home";
@@ -32,11 +30,12 @@ import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import Posts from "../../components/Posts/Posts";
 import { selectAuthPermissions } from "../../redux/authSlice";
 import BusSchedule from "../../components/BusSchedule/BusSchedule";
+import PostSkeleton from "../../components/PostSkeleton/PostSkeleton";
 
 const Home = () => {
   const language = useSelector(selectLanguage);
   const isLoadingPosts = useSelector(selectPostLoading);
-
+  const [isLiking, setIsLiking] = useState(false);
   const [open, setOpen] = useState(false);
   const [totalPostPages, setTotalPostPages] = useState(1);
   const [postPage, setPostPage] = useState(1);
@@ -132,17 +131,10 @@ const Home = () => {
       </WrapperHero>
 
       <PostWrapper ref={postsContainerRef}>
-        {isLoadingPosts ? (
+        {isLoadingPosts && !isLiking ? (
           <Box display="flex" gap="10px">
             {[...Array(5)].map((_, index) => (
-              <Paper
-                key={index}
-                sx={{ p: 2, mb: 2, width: "300px", flexShrink: "0" }}
-              >
-                <Skeleton variant="rectangular" width="100%" height={150} />
-                <Skeleton width="60%" />
-                <Skeleton width="80%" />
-              </Paper>
+              <PostSkeleton key={index} />
             ))}
           </Box>
         ) : (
@@ -160,7 +152,12 @@ const Home = () => {
                     </IconButton>
                   </IconButtonBox>
                 )}
-                <Posts postsArr={postsArr} nameCollection={"home"} />
+                <Posts
+                  postsArr={postsArr}
+                  setIsLiking={setIsLiking}
+                  isLiking={isLiking}
+                  nameCollection={"home"}
+                />
                 {totalPostPages !== postPage && (
                   <IconButtonBox>
                     <IconButton size="large" onClick={handleNextPage}>

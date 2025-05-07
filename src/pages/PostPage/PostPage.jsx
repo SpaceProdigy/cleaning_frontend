@@ -55,7 +55,7 @@ const PostPage = () => {
     (role) =>
       role === "admin" || role === "superAdmin" || role === nameCollection
   );
-  console.log(permissions);
+
   const handleDelete = () => {
     dispatch(deletePostThunk({ nameCollection, id }))
       .then(() => {
