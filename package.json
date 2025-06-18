@@ -12,6 +12,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mui/system": "^5.15.15",
+    "prop-types": "^15.8.1", 
+    "styled-components": "^6.1.11",
     "@hookform/resolvers": "^3.3.4",
     "@mui/icons-material": "^5.15.15",
     "@mui/material": "^5.15.15",

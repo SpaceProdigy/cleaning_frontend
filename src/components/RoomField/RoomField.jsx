@@ -19,7 +19,7 @@ RoomField.propTypes = {
     PropTypes.object,
     PropTypes.oneOf([null]),
   ]),
-  valueRoom: PropTypes.number,
+  valueRoom: PropTypes.string,
   valueSelect: PropTypes.oneOfType([PropTypes.number, PropTypes.object])
     .isRequired,
   corridorRange: PropTypes.object,
@@ -28,11 +28,9 @@ RoomField.propTypes = {
 export default function RoomField({
   setValueRoom,
   setErrorRoom,
-  corridorRange,
   errorRoom,
   isEdit,
   isChooseALesson,
-  valueRoom,
 }) {
   useEffect(() => {
     if (isEdit?.edit && isChooseALesson?.roomNumber) {
@@ -47,31 +45,20 @@ export default function RoomField({
   return (
     <Box sx={{ width: "100%" }}>
       <FormControl sx={{ width: "100%", maxWidth: 400 }}>
-        <InputLabel>{language === "en" ? "Room" : "Кімната"}</InputLabel>
+        <InputLabel>{language === "ua" ? "Кімната" : "Room"}</InputLabel>
         <OutlinedInput
-          id="component-outlined"
-          value={valueRoom}
           onChange={(e) => {
-            let onlyNumbers = e.target.value.replace(/\D/g, "");
-            if (onlyNumbers.length > 3) {
-              onlyNumbers = onlyNumbers.slice(0, 3);
-            }
+            const text = e.target.value;
 
-            const numericValue = Number(onlyNumbers);
-
-            if (
-              numericValue < corridorRange.min ||
-              numericValue > corridorRange.max
-            ) {
+            if (text.length > 20) {
               setErrorRoom(
-                language === "en"
-                  ? `Range of rooms ${corridorRange.min}-${corridorRange.max}`
-                  : `Діапазон кімнат ${corridorRange.min}-${corridorRange.max}`
+                language === "en" ? `Max 20 characters` : `Максимум 20 символів`
               );
             } else {
               setErrorRoom("");
             }
-            setValueRoom(numericValue);
+
+            setValueRoom(text);
           }}
           label={language === "en" ? "Room" : "Кімната"}
         />

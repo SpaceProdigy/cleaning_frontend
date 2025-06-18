@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import { selectLanguage } from "../../redux/localOperation";
 import { selectSchedulesLoading } from "../../redux/cleaningSlice";
 import { PdfList } from "./PdfList.jsx";
+import { PdfShortReminder } from "./PdfShortReminder.jsx";
 
 export const Pdf = ({ data, nameCollection }) => {
   const language = useSelector(selectLanguage);
@@ -154,6 +155,14 @@ export const Pdf = ({ data, nameCollection }) => {
               control={<Radio />}
               label={language === "en" ? "Reminder" : "Нагадування"}
             />
+            <FormControlLabel
+              disabled={isLoading}
+              value="ShortReminder"
+              control={<Radio />}
+              label={
+                language === "en" ? "Short reminder" : "Коротке нагадування"
+              }
+            />
           </RadioGroup>
         </FormControl>
       </Paper>
@@ -177,6 +186,17 @@ export const Pdf = ({ data, nameCollection }) => {
               style={{ width: "100%", height: "600px", border: "none" }}
             >
               <PdfList
+                nameCollection={nameCollection}
+                data={uniqueData}
+                language={language}
+              />
+            </PDFViewer>
+          )}
+          {select === "ShortReminder" && (
+            <PDFViewer
+              style={{ width: "100%", height: "600px", border: "none" }}
+            >
+              <PdfShortReminder
                 nameCollection={nameCollection}
                 data={uniqueData}
                 language={language}

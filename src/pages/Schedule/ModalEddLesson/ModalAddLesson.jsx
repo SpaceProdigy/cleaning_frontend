@@ -33,7 +33,7 @@ ModalAddLesson.propTypes = {
   isDay: PropTypes.oneOfType([PropTypes.object, PropTypes.oneOf([null])]),
   errorRoom: PropTypes.string,
   setErrorRoom: PropTypes.func,
-  valueRoom: PropTypes.number,
+  valueRoom: PropTypes.string,
   taskList: PropTypes.array.isRequired,
   setErrorDate: PropTypes.func,
   errorDate: PropTypes.bool,
