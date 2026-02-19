@@ -33,7 +33,7 @@ export default function RoomInput({
 
   const hendleAddRoom = async () => {
     await dispatch(
-      userUpdateRoomThunk({ id: user.uid, roomNumber: Number(roomValue) })
+      userUpdateRoomThunk({ id: user.uid, roomNumber: roomValue })
     );
     if (roomValue) {
       setIsRoomInput(false);
@@ -41,11 +41,8 @@ export default function RoomInput({
   };
 
   const handleChange = (newValue) => {
-    // Проверяем, состоит ли строка только из цифр
-    const onlyNumbers = newValue.replace(/\D/g, ""); // \D означает все, кроме цифр
-
-    if (onlyNumbers.length <= 5) {
-      setRoomValue(onlyNumbers);
+    if (newValue.length <= 20) {
+      setRoomValue(newValue);
     }
   };
 
@@ -79,7 +76,7 @@ export default function RoomInput({
             value={roomValue}
             onChange={(e) => handleChange(e.target.value)}
             variant="standard"
-            helperText="Max 5 characters"
+            helperText="Max 20 characters"
             style={{ minWidth: 150 }}
           />
           {roomValue.length > 0 && (
